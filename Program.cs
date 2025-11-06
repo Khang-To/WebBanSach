@@ -1,7 +1,22 @@
+﻿using Microsoft.EntityFrameworkCore;
+using WebBanSach.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Đăng ký DbContext
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Bật Session (nếu bạn có giỏ hàng)
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(1); // thời gian lưu session (ở server)
+    options.Cookie.Name = ".WebBanSach.Session";  // tên cookie session
+});
 
 var app = builder.Build();
 
@@ -15,7 +30,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
+app.UseSession();
 app.UseRouting();
 
 app.UseAuthorization();
