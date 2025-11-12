@@ -17,7 +17,6 @@ namespace WebBanSach.Models
         public DbSet<OrderDetail> OrderDetails { get; set; } = null!;
         public DbSet<Product> Products { get; set; } = null!;
         public DbSet<ProductCategory> ProductCategories { get; set; } = null!;
-        public DbSet<ProductReview> ProductReviews { get; set; } = null!;
         public DbSet<Publisher> Publishers { get; set; } = null!;
     }
 }

@@ -48,7 +48,5 @@ namespace WebBanSach.Models
         // Tham chiếu
         public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
         public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
-        public virtual ICollection<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
-    
     }
 }

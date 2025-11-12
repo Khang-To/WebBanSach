@@ -1,0 +1,29 @@
+﻿@model WebBanSach.Models.ProductCategory
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Chi tiết thông tin thể loại</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model?.ID">Chỉnh sửa</a>
+    <a class="btn btn-secondary" asp-action="Index">Quay lại</a>
+</div>

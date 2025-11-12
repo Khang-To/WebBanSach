@@ -1,0 +1,162 @@
+﻿@model IEnumerable<WebBanSach.Models.Author>
+
+@{
+    ViewData["Title"] = "Danh mục tác giả";
+    var search = ViewBag.Search as string ?? "";
+    var currentPage = ViewBag.CurrentPage as int? ?? 1;
+    var totalPages = ViewBag.TotalPages as int? ?? 1;
+    int maxPagesToShow = 5; // số trang hiển thị tối đa ở giữa
+}
+
+<div class="container mt-4">
+    <!-- Tiêu đề + nút thêm -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary mb-0">
+            <i class="bi bi-tags-fill"></i> @ViewData["Title"]
+        </h2>
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-circle"></i> Thêm tác giả
+        </a>
+    </div>
+
+    <!-- Ô tìm kiếm -->
+    <form asp-action="Index" method="get" class="input-group mb-3 shadow-sm">
+        <input type="text" name="search" class="form-control" placeholder="Tìm kiếm theo tên tác giả..." value="@search" />
+
+        <button class="btn btn-outline-primary" type="submit">
+            <i class="bi bi-search"></i> Tìm kiếm
+        </button>
+
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-clockwise"></i> Hiện tất cả
+        </a>
+    </form>
+
+
+    <!-- Bảng danh mục -->
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr class="text-center">
+                        <th style="width: 25%">
+                            @Html.DisplayNameFor(model => model.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Description)
+                        </th>
+                        <th style="width: 20%">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@item.Name</td>
+                                <td>@item.Description</td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-sm btn-outline-warning" title="Sửa">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-sm btn-outline-info" title="Chi tiết">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.ID" class="btn btn-sm btn-outline-danger" title="Xóa">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                                @if (string.IsNullOrEmpty(search))
+                                {
+                                    <text>Chưa có tác giả nào.</text>
+                                }
+                                else
+                                {
+                                    <text>Không tìm thấy tác giả nào.</text>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Phân trang -->
+    @if (totalPages > 1)
+    {
+        <nav aria-label="Phân trang">
+            <ul class="pagination justify-content-center mt-3">
+
+                <!-- Trang đầu -->
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="1" asp-route-search="@search">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+
+                <!-- Trang trước -->
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-search="@search">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+
+                @* Các trang giữa *@
+                @{
+                    int start = Math.Max(1, currentPage - 2);
+                    int end = Math.Min(totalPages, start + maxPagesToShow - 1);
+                    if (end - start < maxPagesToShow - 1)
+                    {
+                        start = Math.Max(1, end - maxPagesToShow + 1);
+                    }
+                }
+
+                @if (start > 1)
+                {
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                }
+
+                @for (int i = start; i <= end; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-search="@search">@i</a>
+                    </li>
+                }
+
+                @if (end < totalPages)
+                {
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                }
+
+                <!-- Trang sau -->
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-search="@search">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+
+                <!-- Trang cuối -->
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@totalPages" asp-route-search="@search">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+    }
+
+
+</div>

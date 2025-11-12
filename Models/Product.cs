@@ -49,7 +49,6 @@ namespace WebBanSach.Models
         public virtual ProductCategory Category { get; set; } = null!;
         public virtual Author Author { get; set; } = null!;
         public virtual Publisher Publisher { get; set; } = null!;
-        public virtual ICollection<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
         public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
         public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
 
