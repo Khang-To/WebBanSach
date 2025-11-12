@@ -1,0 +1,205 @@
+﻿@{
+    ViewData["Title"] = "Bảng điều khiển";
+}
+
+<div class="container-fluid p-4">
+
+    <!-- Row 1: Cards tổng quan -->
+    <div class="row">
+        <div class="col-md-2 col-sm-6 mb-3">
+            <div class="card bg-primary">
+                <div class="card-body">
+                    <div class="card-title text-white">Sách</div>
+                    <h3 class="text-white">@ViewBag.TotalProducts</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-6 mb-3">
+            <div class="card bg-success">
+                <div class="card-body">
+                    <div class="card-title text-white">Loại sách</div>
+                    <h3 class="text-white">@ViewBag.TotalCategories</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-6 mb-3">
+            <div class="card bg-warning">
+                <div class="card-body">
+                    <div class="card-title text-white">Nhà xuất bản</div>
+                    <h3 class="text-white">@ViewBag.TotalPublishers</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-6 mb-3">
+            <div class="card bg-danger">
+                <div class="card-body">
+                    <div class="card-title text-white">Khách hàng</div>
+                    <h3 class="text-white">@ViewBag.TotalCustomers</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-6 mb-3">
+            <div class="card bg-info">
+                <div class="card-body">
+                    <div class="card-title text-white">Đơn hàng</div>
+                    <h3 class="text-white">@ViewBag.TotalOrders</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-6 mb-3">
+            <div class="card bg-secondary">
+                <div class="card-body">
+                    <div class="card-title text-white">Doanh thu</div>
+                    <h3 class="text-white">
+                        @((ViewBag.TotalRevenue ?? 0).ToString("C0", new System.Globalization.CultureInfo("vi-VN")))
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 2: Biểu đồ -->
+    <div class="row mt-4">
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    Doanh thu theo tháng
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    Đơn hàng theo trạng thái
+                </div>
+                <div class="card-body">
+                    <canvas id="ordersChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 3: Recent activity -->
+    <div class="row mt-4">
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header">Đơn hàng mới nhất</div>
+                <div class="card-body table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Ngày đặt</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in ViewBag.RecentOrders)
+                            {
+                                <tr>
+                                    <td>@order.OrderId</td>
+                                    <td>@order.CustomerName</td>
+                                    <td>@order.OrderDate.ToString("dd/MM/yyyy")</td>
+                                    <td>@order.Status</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header">Khách hàng mới đăng ký</div>
+                <div class="card-body table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Tên</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var customer in ViewBag.RecentCustomers)
+                            {
+                                <tr>
+                                    <td>@customer.FullName</td>
+                                    <td>@customer.Email</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 4: Shortcut links -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">Truy cập nhanh</div>
+                <div class="card-body d-flex flex-wrap gap-3">
+                    <a href="/Admin/Product" class="btn btn-outline-primary">Quản lý sản phẩm</a>
+                    <a href="/Admin/Publisher" class="btn btn-outline-success">Quản lý nhà xuất bản</a>
+                    <a href="/Admin/CategoryProduct" class="btn btn-outline-warning">Quản lý loại sản phẩm</a>
+                    <a href="/Admin/Customer" class="btn btn-outline-info">Quản lý khách hàng</a>
+                    <a href="/Admin/Order" class="btn btn-outline-danger">Quản lý đơn hàng</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Biểu đồ doanh thu
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(ViewBag.MonthLabels), // ["Th1","Th2",...]
+                datasets: [{
+                    label: 'Doanh thu',
+                    data: @Html.Raw(ViewBag.MonthRevenue), // [1200, 1500,...]
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Biểu đồ đơn hàng theo trạng thái
+        const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+        new Chart(ordersCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ["Pending", "Confirmed", "Paid", "Cancelled"],
+                datasets: [{
+                    data: @Html.Raw(ViewBag.OrderStatusCounts), 
+                    backgroundColor: [
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(255, 99, 132, 0.7)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    </script>
+}

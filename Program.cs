@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
 using WebBanSach.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddHttpContextAccessor(); // 
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -33,7 +35,27 @@ app.UseStaticFiles();
 app.UseSession();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
+//using (var scope = app.Services.CreateScope())
+//{
+//    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+//    if (!db.AppUsers.Any(u => u.UserType == UserType.Admin))
+//    {
+//        db.AppUsers.Add(new AppUser
+//        {
+//            UserName = "admin",
+//            PasswordHash = BCrypt.Net.BCrypt.HashPassword("123456"), // mã hóa
+//            FullName = "Quản trị viên",
+//            Email = "admin@gmail.com",
+//            UserType = UserType.Admin,
+//            IsActive = true
+//        });
+//        db.SaveChanges();
+//    }
+//}
 
 // Route cho Area (Admin)
 app.MapControllerRoute(
