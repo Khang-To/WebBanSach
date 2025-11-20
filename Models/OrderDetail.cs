@@ -6,10 +6,12 @@ namespace WebBanSach.Models
     {
         public int ID { get; set; }
 
+        [Required]
         [Display(Name = "Đơn hàng")]
         public int OrderId { get; set; }
 
-        [Display(Name = "Sản phẩm")]
+        [Required]
+        [Display(Name = "Sách")]
         public int ProductId { get; set; }
 
         [Range(1, int.MaxValue)]
@@ -20,8 +22,8 @@ namespace WebBanSach.Models
         [Display(Name = "Đơn giá")]
         public decimal UnitPrice { get; set; }
 
-        // Navigation
-        public virtual Order Order { get; set; } = null!;
-        public virtual Product Product { get; set; } = null!;
+        // Navigation: nullable, không [Required]
+        public virtual Order? Order { get; set; }
+        public virtual Product? Product { get; set; }
     }
 }

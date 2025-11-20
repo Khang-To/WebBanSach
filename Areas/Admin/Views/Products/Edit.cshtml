@@ -1,0 +1,134 @@
+﻿@model WebBanSach.Models.Product
+
+@{
+    ViewData["Title"] = "Chỉnh sửa thông tin sách";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">
+        <i class="fas fa-book-medical"></i> Chỉnh sửa thông tin sách
+    </h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-plus-circle"></i> Thông tin sách</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                <input type="hidden" asp-for="ID" />
+                <div class="row">
+                    <!-- Cột trái: Thông tin cơ bản -->
+                    <div class="col-lg-8">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Name" class="form-label fw-bold"></label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Price" class="form-label fw-bold"></label>
+                                <input asp-for="Price" class="form-control"/>
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DiscountPercent" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <input asp-for="DiscountPercent" class="form-control" />
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <span asp-validation-for="DiscountPercent" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Stock" class="form-label fw-bold"></label>
+                                <input asp-for="Stock" type="number" class="form-control" />
+                                <span asp-validation-for="Stock" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="CategoryId" class="form-label fw-bold"></label>
+                                <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId" required>
+                                    <option value="">-- Chọn danh mục --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="AuthorId" class="form-label fw-bold"></label>
+                                <select asp-for="AuthorId" class="form-select" asp-items="ViewBag.AuthorId" required>
+                                    <option value="">-- Chọn tác giả --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="PublisherId" class="form-label fw-bold"></label>
+                                <select asp-for="PublisherId" class="form-select" asp-items="ViewBag.PublisherId" required>
+                                    <option value="">-- Chọn nhà xuất bản --</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PublishYear" class="form-label fw-bold"></label>
+                                <input asp-for="PublishYear" type="number" class="form-control"/>
+                                <span asp-validation-for="PublishYear" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="TotalPage" class="form-label fw-bold"></label>
+                                <input asp-for="TotalPage" type="number" class="form-control" />
+                                <span asp-validation-for="TotalPage" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label fw-bold"></label>
+                                <textarea asp-for="Description" class="form-control" rows="4" ></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cột phải: Ảnh bìa -->
+                    <div class="col-lg-4">
+                        <div class="border rounded p-3 bg-light">
+                            <label class="form-label fw-bold">Ảnh bìa sách</label>
+
+                            <div class="text-center mb-3">
+                                <img id="previewImg" src="/images/products/@Model.ImageUrl" alt="Preview" class="img-fluid rounded shadow-sm" style="max-height: 320px; object-fit: cover; width: 100%;" />
+                            </div>
+
+                            <input type="file" name="imageFile" class="form-control" accept="image/*" onchange="previewImage(event)" />
+
+                            @Html.ValidationMessage("imageFile", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                    </a>
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-save"></i> Lưu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function previewImage(event) {
+            const output = document.getElementById('previewImg');
+            output.src = URL.createObjectURL(event.target.files[0]);
+            output.onload = function () {
+                URL.revokeObjectURL(output.src);
+            }
+        }
+    </script>
+}

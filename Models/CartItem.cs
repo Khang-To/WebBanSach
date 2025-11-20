@@ -6,17 +6,14 @@ namespace WebBanSach.Models
     {
         public int ID { get; set; }
 
-        [Display(Name = "Người dùng")]
-        public int UserId { get; set; }
-
-        [Display(Name = "Sản phẩm")]
+        public int UserId { get; set; }     // không cần [Required] nếu User đang đăng nhập
         public int ProductId { get; set; }
 
-        [Range(1, int.MaxValue)]
-        [Display(Name = "Số lượng")]
+        [Range(1, int.MaxValue, ErrorMessage = "Số lượng phải lớn hơn 0")]
         public int Quantity { get; set; }
 
-        public virtual AppUser User { get; set; } = null!;
-        public virtual Product Product { get; set; } = null!;
+        // Navigation: nullable
+        public virtual AppUser? User { get; set; }
+        public virtual Product? Product { get; set; }
     }
 }

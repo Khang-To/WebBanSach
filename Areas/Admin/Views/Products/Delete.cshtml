@@ -1,0 +1,67 @@
+﻿@model WebBanSach.Models.Product
+@{
+    ViewData["Title"] = "Xóa sách - " + Model.Name;
+}
+
+<div class="container-fluid px-4 py-4">
+    <h1 class="h3 text-danger mb-4">
+        <i class="bi bi-exclamation-triangle-fill"></i> Xác nhận xóa sách
+    </h1>
+
+    <div class="row">
+        <!-- Ảnh + thông tin cơ bản -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <img src="~/images/products/@Model.ImageUrl"
+                     onerror="this.src='~/images/products/no-image.webp'"
+                     class="card-img-top" alt="@Model.Name"
+                     style="height: 400px; object-fit: contain; background:#f8f9fa;">
+                <div class="card-body text-center">
+                    <h5 class="card-title fw-bold">@Model.Name</h5>
+                    <p class="text-muted small">
+                        @Model.Author?.Name • @Model.Category?.Name
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thông báo cảnh báo + nút xác nhận -->
+        <div class="col-lg-8">
+            <div class="card border-danger shadow h-100">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-exclamation-circle"></i> Bạn có chắc chắn muốn xóa sách này?
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <strong>Hành động này không thể hoàn tác!</strong><br>
+                        Sách sẽ bị xóa vĩnh viễn khỏi hệ thống cùng với toàn bộ ảnh bìa.
+                    </div>
+
+                    <table class="table table-borderless">
+                        <tr><th width="180">Mã sách</th><td><code>#@Model.ID</code></td></tr>
+                        <tr><th>Giá bán</th><td>@Model.FinalPrice.ToString("N0") ₫</td></tr>
+                        <tr><th>Tồn kho</th><td>@Model.Stock sách</td></tr>
+                        <tr><th>Thể loại</th><td>@Model.Category?.Name</td></tr>
+                        <tr><th>Tác giả</th><td>@Model.Author?.Name</td></tr>
+                        <tr><th>Nhà xuất bản</th><td>@Model.Publisher?.Name</td></tr>
+                    </table>
+                </div>
+
+                <div class="card-footer bg-light d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary btn-lg">
+                        <i class="bi bi-arrow-left"></i> Hủy bỏ
+                    </a>
+
+                    <form asp-action="Delete" asp-route-id="@Model.ID" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            <i class="bi bi-trash-fill"></i> Đồng ý xóa vĩnh viễn
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
