@@ -1,0 +1,139 @@
+﻿@model WebBanSach.Models.Product
+@{
+    ViewData["Title"] = "Chi tiết sách - " + Model.Name;
+}
+
+<div class="container-fluid px-4 py-4">
+
+    <!-- Header + nút hành động -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 fw-bold text-primary">
+            <i class="bi bi-book-half"></i> @Model.Name
+        </h1>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.ID" class="btn btn-warning btn-sm">
+                <i class="bi bi-pencil-square"></i> Sửa sách
+            </a>
+            <a asp-action="Index" class="btn btn-secondary btn-sm ms-2">
+                <i class="bi bi-arrow-left"></i> Quay lại danh sách
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- CỘT TRÁI: Ảnh bìa lớn -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm h-100">
+                <img src="~/images/products/@Model.ImageUrl"
+                     onerror="this.src='~/images/products/no-image.webp'"
+                     class="card-img-top"
+                     alt="@Model.Name"
+                     style="height: 620px; object-fit: contain; background: #f8f9fa;">
+                <div class="card-body text-center bg-light">
+                    <small class="text-muted">Ảnh bìa sách</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI: Thông tin ngắn gọn -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle-fill"></i> Thông tin chi tiết</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless table-sm">
+
+                        <tr>
+                            <th width="180">Giá bán gốc</th>
+                            <td><span class="text-danger fw-bold">@Model.Price.ToString("N0") ₫</span></td>
+                        </tr>
+
+                        @if (Model.DiscountPercent > 0)
+                        {
+                            <tr>
+                                <th>Giảm giá</th>
+                                <td><span class="text-success">@Model.DiscountPercent %</span></td>
+                            </tr>
+                            <tr>
+                                <th>Giá bán thực tế</th>
+                                <td><span class="text-success fw-bold">@Model.FinalPrice.ToString("N0") ₫</span></td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <th>Giá bán</th>
+                                <td><span class="text-success fw-bold">@Model.FinalPrice.ToString("N0") ₫</span></td>
+                            </tr>
+                        }
+
+                        <tr>
+                            <th>Số lượng tồn</th>
+                            <td>
+                                <span class="badge @(Model.Stock > 0 ? "text-info" : "text-danger") fs-6">
+                                    @Model.Stock sách
+                                </span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Thể loại</th>
+                            <td>@Model.Category?.Name</td>
+                        </tr>
+
+                        <tr>
+                            <th>Tác giả</th>
+                            <td>@Model.Author?.Name</td>
+                        </tr>
+
+                        <tr>
+                            <th>Nhà xuất bản</th>
+                            <td>@Model.Publisher?.Name</td>
+                        </tr>
+
+                        @if (Model.PublishYear.HasValue)
+                        {
+                            <tr>
+                                <th>Năm xuất bản</th>
+                                <td>@Model.PublishYear.Value</td>
+                            </tr>
+                        }
+
+                        @if (Model.TotalPage.HasValue)
+                        {
+                            <tr>
+                                <th>Tổng số trang</th>
+                                <td>@Model.TotalPage.Value trang</td>
+                            </tr>
+                        }
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MÔ TẢ RIÊNG - FULL CHIỀU RỘNG -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="bi bi-card-text"></i> Mô tả chi tiết sách</h5>
+                </div>
+                <div class="card-body bg-light" style="min-height: 280px; font-size: 1.05rem; line-height: 1.8;">
+                    @if (!string.IsNullOrWhiteSpace(Model.Description))
+                    {
+                        @Html.Raw(Model.Description.Replace("\n", "<br>"))
+                    }
+                    else
+                    {
+                        <span class="text-muted">Không có mô tả</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

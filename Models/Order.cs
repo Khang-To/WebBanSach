@@ -18,6 +18,7 @@ namespace WebBanSach.Models
         Cancelled = 3
     }
 
+    // 1. Order.cs
     public class Order
     {
         public int ID { get; set; }
@@ -30,14 +31,14 @@ namespace WebBanSach.Models
 
         [Required]
         [Display(Name = "Trạng thái đơn hàng")]
-        public OrderStatus Status { get; set; } = OrderStatus.Pending;  // mặc định là đang chờ xử lý
+        public OrderStatus Status { get; set; } = OrderStatus.Pending;  //mặc định là đang chờ xử lý
 
         [StringLength(500)]
         [Display(Name = "Ghi chú")]
         public string? Note { get; set; }
 
-        // tham chiếu
-        public virtual AppUser User { get; set; } = null!;
+        // Navigation: KHÔNG [Required], phải nullable
+        public virtual AppUser? User { get; set; }
         public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     }
 }

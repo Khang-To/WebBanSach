@@ -43,111 +43,19 @@ namespace WebBanSach.Areas.Admin.Controllers
             return View(appUser);
         }
 
-        // GET: Admin/AppUsers/Create
-        public IActionResult Create()
+        // Hàm bật tắt trạng thái của khách hàng
+        public IActionResult ToggleStatus(int id)
         {
-            return View();
-        }
-
-        // POST: Admin/AppUsers/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,UserName,PasswordHash,FullName,Email,PhoneNumber,Address,UserType,IsActive")] AppUser appUser)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(appUser);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(appUser);
-        }
-
-        // GET: Admin/AppUsers/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
+            var user = _context.AppUsers.Find(id);
+            if (user == null)
                 return NotFound();
-            }
 
-            var appUser = await _context.AppUsers.FindAsync(id);
-            if (appUser == null)
-            {
-                return NotFound();
-            }
-            return View(appUser);
-        }
+            user.IsActive = !user.IsActive; // Đảo trạng thái true/false
+            _context.SaveChanges();
 
-        // POST: Admin/AppUsers/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,UserName,PasswordHash,FullName,Email,PhoneNumber,Address,UserType,IsActive")] AppUser appUser)
-        {
-            if (id != appUser.ID)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(appUser);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!AppUserExists(appUser.ID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(appUser);
-        }
-
-        // GET: Admin/AppUsers/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var appUser = await _context.AppUsers
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (appUser == null)
-            {
-                return NotFound();
-            }
-
-            return View(appUser);
-        }
-
-        // POST: Admin/AppUsers/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var appUser = await _context.AppUsers.FindAsync(id);
-            if (appUser != null)
-            {
-                _context.AppUsers.Remove(appUser);
-            }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
 
         private bool AppUserExists(int id)
         {
