@@ -9,67 +9,159 @@
 
     <!-- Bootstrap icons-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --primary-green: #00a651;
+            --primary-blue: #003087;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--primary-green);
+            text-decoration: none;
+        }
+
+        .badge-sale {
+            position: absolute;
+            top: -15px;
+            left: -30px;
+            background: #ffeb3b;
+            color: #333;
+            padding: 12px 20px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 14px;
+            transform: rotate(-15deg);
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .carousel-item {
+            padding: 0; /* bỏ padding để ảnh full */
+            height: 450px; /* chiều cao banner tùy chỉnh */
+            background: linear-gradient(135deg, #e8f5e8, #d0e8f5);
+        }
+
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* zoom ảnh cho đầy khung */
+        }
+
+        .footer{
+            background-color: var(--primary-green);
+            color: #fff;
+        }
+    </style>
 </head>
 
 <body id="top">
-    <!-- Navigation-->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-info shadow">
-        <div class="container px-4 px-lg-5">
-            <a class="navbar-brand" href="index.php"><i class="bi bi-shop-window"></i> ABC Shop</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="#!">Trang chính</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#!">Giới thiệu</a></li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Danh mục sản phẩm</a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#!">Sản phẩm</a></li>
-                            <li><hr class="dropdown-divider" /></li>
-                            <li><a class="dropdown-item" href="#!">Danh mục 1</a></li>
-                            <li><a class="dropdown-item" href="#!">Danh mục 2</a></li>
-                        </ul>
-                    </li>
-                </ul>
-                <div class="d-flex">
-                    <a href="#" class="btn btn-outline-light"><i class="bi bi-person"></i> Đăng nhập</a>&nbsp;
-                    <a href="#" class="btn btn-outline-light"><i class="bi bi-cart3"></i> Giỏ hàng <span class="badge bg-danger text-white ms-1 rounded-pill">0</span></a>
+    <!-- ==================== HEADER ==================== -->
+    <header class="border-bottom">
+
+        <!-- Main header -->
+        <div class="container py-3">
+            <div class="row align-items-center g-4">
+                <!-- Logo -->
+                <div class="col-lg-3 col-12 text-center text-lg-start">
+                    <a href="/" class="logo"><i class="bi bi-book"></i> TKBook</a>
+                </div>
+
+                <!-- Search -->
+                <div class="col-lg-6 col-12">
+                    <form class="d-flex">
+                        <input class="form-control me-2" type="search" name="search" placeholder="Tìm kiếm sách, tác giả..." />
+                        <button class="btn btn-success" type="submit"><i class="bi bi-search"></i></button>
+                    </form>
+                </div>
+
+                <!-- Actions -->
+                <div class="col-lg-3 col-12 text-center text-lg-end">
+                    <div class="d-flex">
+                        <a href="#" class="btn btn-outline-success"><i class="bi bi-person"></i> Đăng nhập</a>&nbsp;
+                        <a href="#" class="btn btn-outline-success"><i class="bi bi-cart3"></i> Giỏ hàng <span class="badge bg-danger text-white ms-1 rounded-pill">0</span></a>
+                    </div>
                 </div>
             </div>
         </div>
-    </nav>
 
-    <!-- Carousel chia tỉ lê -->
-    <div class="ratio ratio-21x9 shadow rounded-3 overflow-hidden">
-        <!-- tỷ lệ phổ biến: 21:9, 16:9, 4:3, 1x1... -->
-        <div id="demo" class="carousel slide h-100" data-bs-ride="carousel">
-            <!-- Indicators -->
-            <div class="carousel-indicators">
-                <button type="button" data-bs-target="#demo" data-bs-slide-to="0" class="active"></button>
-                <button type="button" data-bs-target="#demo" data-bs-slide-to="1"></button>
-                <button type="button" data-bs-target="#demo" data-bs-slide-to="2"></button>
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg shadow-sm" style="background-color: #f8f9fa;">
+            <div class="container d-flex justify-content-between align-items-center">
+
+                <!-- Dropdown Danh mục -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle fw-semibold" href="#" data-bs-toggle="dropdown">
+                                Danh mục sách
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Sản phẩm</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">Danh mục 1</a></li>
+                                <li><a class="dropdown-item" href="#">Danh mục 2</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold" asp-controller="Home" asp-action="Privacy">Giới thiệu</a>
+                        </li>
+
+                    </ul>
+                </div>
+
+                <!-- Các thông tin bên phải -->
+                <div class="d-flex gap-4 align-items-center flex-wrap">
+
+                    <span class="text-dark">
+                        <i class="bi bi-truck text-success"></i> Ship COD Toàn Quốc
+                    </span>
+
+                    <span class="text-dark">
+                        <i class="bi bi-gift text-success"></i> Free Ship đơn từ 300k
+                    </span>
+
+                    <span class="text-dark">
+                        <i class="bi bi-telephone-fill text-success"></i> 0123456789
+                    </span>
+
+                </div>
             </div>
+        </nav>
 
-            <div class="carousel-inner h-100">
-                <div class="carousel-item active h-100">
-                    <img src="images/carousel/h1.jpg" class="d-block w-100 h-100 object-fit-cover" alt="...">
-                </div>
-                <div class="carousel-item h-100">
-                    <img src="images/carousel/h2.jpg" class="d-block w-100 h-100 object-fit-cover" alt="...">
-                </div>
-                <div class="carousel-item h-100">
-                    <img src="images/carousel/h3.jpg" class="d-block w-100 h-100 object-fit-cover" alt="...">
-                </div>
+    </header>
+
+    <!-- Carousel -->
+    <div id="homeCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="~/images/carousel/h1.jpg" class="d-block w-100" alt="">
             </div>
-
-            <!-- Controls -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#demo" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon"></span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#demo" data-bs-slide="next">
-                <span class="carousel-control-next-icon"></span>
-            </button>
+            <div class="carousel-item">
+                <img src="~/images/carousel/h2.jpg" class="d-block w-100" alt="">
+            </div>
+            <div class="carousel-item">
+                <img src="~/images/carousel/h3.jpg" class="d-block w-100" alt="">
+            </div>
+            <div class="carousel-item">
+                <img src="~/images/carousel/h4.jpg" class="d-block w-100" alt="">
+            </div>
         </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#homeCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#homeCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
     </div>
 
     <!-- Section-->
@@ -80,7 +172,7 @@
     </section>
 
     <!-- Footer-->
-    <footer class="py-5 bg-info">
+    <footer class="py-5 footer">
         <div class="text-center mb-5"><a class="text-warning" href="#top"><i class="bi bi-chevron-up" style="font-size: 3rem; font-weight: bold; color:white;"></i></a></div>
 
         <div class="container">
@@ -90,13 +182,13 @@
                     <p>Địa chỉ: 18 Ung Văn Khiêm, phường Đông Xuyên, TP Long Xuyên, An Giang</p>
                     <p>Điện thoại: 076 3841190 - Email: abc@abc.com</p>
                 </div>
-                <div class="col-3 text-muted">
+                <div class="col-3 text-white">
                     <h4>DANH MỤC HÀNG</h4>
                     <a href="#" class="list-group-item">Liên kết</a>
                     <a href="#" class="list-group-item">Liên kết</a>
                     <a href="#" class="list-group-item">Liên kết</a>
                 </div>
-                <div class="col-3 text-muted">
+                <div class="col-3 text-white">
                     <h4>DỊCH VỤ KHÁCH HÀNG</h4>
                     <a href="#" class="list-group-item">Hướng dẫn mua hàng</a>
                     <a href="#" class="list-group-item">Câu hỏi thường gặp</a>
@@ -104,7 +196,7 @@
                 </div>
             </div>
             <hr>
-            <p class="m-0 text-center text-warning fw-bolder">Copyright &copy; ABC Shop 2023</p>
+            <p class="m-0 text-center text-warning fw-bolder">Copyright &copy; TKBook</p>
         </div>
     </footer>
 

@@ -10,6 +10,7 @@ using WebBanSach.Models;
 namespace WebBanSach.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    //[AdminAuthorize]
     public class AppUsersController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -20,9 +21,34 @@ namespace WebBanSach.Areas.Admin.Controllers
         }
 
         // GET: Admin/AppUsers
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? search, int page = 1)
         {
-            return View(await _context.AppUsers.ToListAsync());
+            int pageSize = 10; // số lượng item trên 1 trang
+            var query = _context.AppUsers.AsQueryable();
+
+            // Tìm kiếm theo tên danh mục
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(x => x.FullName.Contains(search));
+            }
+
+            // Tính toán phân trang
+            var totalItems = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            // Lấy dữ liệu trang hiện tại
+            var data = await query
+                .OrderBy(x => x.FullName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // Truyền dữ liệu sang View
+            ViewBag.Search = search;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+
+            return View(data);
         }
 
         // GET: Admin/AppUsers/Details/5

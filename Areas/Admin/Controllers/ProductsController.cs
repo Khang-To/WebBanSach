@@ -10,6 +10,7 @@ using WebBanSach.Models;
 namespace WebBanSach.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    //[AdminAuthorize]
     public class ProductsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -218,23 +219,35 @@ namespace WebBanSach.Areas.Admin.Controllers
             {
                 try
                 {
+                    // Lấy lại entity gốc từ database để giữ nguyên ImageUrl nếu không upload ảnh mới
+                    var existingProduct = await _context.Products.AsNoTracking()
+                        .FirstOrDefaultAsync(p => p.ID == id);
+
                     if (imageFile != null && imageFile.Length > 0)
                     {
-                        // Có ảnh mới upload và cập nhật đường dẫn
+                        // Có ảnh mới upload và xóa ảnh cũ
                         var newImageUrl = UploadImage(imageFile);
                         if (newImageUrl != null)
                         {
-                            // Xóa ảnh cũ để tiết kiệm dung lượng
-                            if (!string.IsNullOrEmpty(product.ImageUrl) &&
-                                product.ImageUrl != "no-image.webp" &&
-                                System.IO.File.Exists(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products", product.ImageUrl)))
+                            // Xóa ảnh cũ nếu không phải ảnh mặc định
+                            if (!string.IsNullOrEmpty(existingProduct?.ImageUrl) &&
+                                existingProduct.ImageUrl != "no-image.webp")
                             {
-                                System.IO.File.Delete(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products", product.ImageUrl));
+                                var oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products", existingProduct.ImageUrl);
+                                if (System.IO.File.Exists(oldPath))
+                                {
+                                    System.IO.File.Delete(oldPath);
+                                }
                             }
-
-                            product.ImageUrl = newImageUrl; 
+                            product.ImageUrl = newImageUrl;
                         }
                     }
+                    else
+                    {
+                        // Không có ảnh mới giữ nguyên ảnh cũ
+                        product.ImageUrl = existingProduct?.ImageUrl;
+                    }
+
                     _context.Update(product);
                     await _context.SaveChangesAsync();
                 }
@@ -244,13 +257,12 @@ namespace WebBanSach.Areas.Admin.Controllers
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            // Nếu ModelState không hợp lệ, load lại dropdown
             ViewData["AuthorId"] = new SelectList(_context.Authors, "ID", "Name", product.AuthorId);
             ViewData["CategoryId"] = new SelectList(_context.ProductCategories, "ID", "Name", product.CategoryId);
             ViewData["PublisherId"] = new SelectList(_context.Publishers, "ID", "Name", product.PublisherId);

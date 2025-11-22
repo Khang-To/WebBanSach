@@ -1,6 +1,6 @@
 ﻿@model WebBanSach.Models.AppUser
 @{
-    ViewData["Title"] = "Chi tiết khách hàng";
+    ViewData["Title"] = "Thông tin tài khoản";
 }
 
 <div class="container-fluid px-4 py-4">
@@ -53,26 +53,8 @@
 
                     <div class="d-flex m-md-2">
 
-                        <a asp-action="Orders" asp-route-customerId="@Model.ID"
-                           class="btn btn-outline-primary me-3">
-                            <i class="bi bi-bag-check"></i> Đơn hàng
-                        </a>
-
-                        <form asp-action="ToggleStatus"
-                              asp-route-id="@Model.ID"
-                              method="post"
-                              onsubmit="return confirm('Bạn có chắc muốn @(Model.IsActive ? "khóa" : "mở khóa") @Model.FullName không?')">
-                            @Html.AntiForgeryToken()
-                            <button type="submit"
-                                    class="btn me-3 @(Model.IsActive ? "btn-outline-danger" : "btn-outline-success")">
-                                <i class="@(Model.IsActive ? "bi bi-lock" : "bi bi-unlock")"></i>
-                                @(Model.IsActive ? "Khóa" : "Mở khóa")
-                            </button>
-                        </form>
-
-                        <a asp-action="Index" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i>
-                        </a>
+                        <a asp-action="EditProfile" class="btn btn-warning me-3">Chỉnh sửa thông tin</a>
+                        <a asp-action="ChangePassword" class="btn btn-danger">Đổi mật khẩu</a>
 
                     </div>
 

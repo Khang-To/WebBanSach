@@ -18,7 +18,6 @@ namespace WebBanSach.Models
         Cancelled = 3
     }
 
-    // 1. Order.cs
     public class Order
     {
         public int ID { get; set; }
