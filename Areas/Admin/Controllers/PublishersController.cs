@@ -10,6 +10,7 @@ using WebBanSach.Models;
 namespace WebBanSach.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    //[AdminAuthorize]
     public class PublishersController : Controller
     {
         private readonly ApplicationDbContext _context;

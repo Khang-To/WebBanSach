@@ -1,0 +1,158 @@
+﻿@model IEnumerable<WebBanSach.Models.Order>
+
+@{
+    ViewData["Title"] = "Danh mục đơn hàng";
+    var search = ViewBag.Search as string ?? "";
+    var status = ViewBag.Status as string ?? "all";
+    var currentPage = ViewBag.CurrentPage as int? ?? 1;
+    var totalPages = ViewBag.TotalPages as int? ?? 1;
+    int maxPagesToShow = 5; // số trang hiển thị tối đa ở giữa
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary mb-0">
+        <i class="bi bi-tags-fill"></i> @ViewData["Title"]
+    </h2>
+</div>
+
+<!-- Form lọc -->
+<form asp-action="Index" method="get" class="row g-3 mb-4 p-3 bg-light rounded shadow-sm">
+    <div class="col-md-5">
+        <input type="text" name="search" value="@search" class="form-control"
+               placeholder="Tìm khách hàng, mã đơn, SĐT, email..." />
+    </div>
+
+    <div class="col-md-3">
+        <select name="status" class="form-select" asp-items="Html.GetEnumSelectList<OrderStatus>()">
+            <option value="all">--- Tất cả trạng thái ---</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Lọc</button>
+    </div>
+    <div class="col-md-2">
+        <a asp-action="Index" class="btn btn-outline-secondary w-100">Hiện tất cả</a>
+    </div>
+</form>
+
+<!-- Table danh sách -->
+<div class="table-responsive shadow-sm rounded">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+            <tr class="text-center">
+                <th>Mã đơn</th>
+                <th>Khách hàng</th>
+                <th>SĐT / Email</th>
+                <th>Ngày đặt</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                        Không có đơn hàng nào.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                foreach (var o in Model)
+                {
+                    var total = o.OrderDetails.Sum(x => x.Quantity * x.UnitPrice);
+                    var badge = o.Status switch
+                    {
+                        OrderStatus.Pending => "bg-warning text-dark",
+                        OrderStatus.Confirmed => "bg-info text-white",
+                        OrderStatus.Paid => "bg-success text-white",
+                        OrderStatus.Cancelled => "bg-danger text-white",
+                        _ => "bg-secondary"
+                    };
+
+                    <tr>
+                        <td><strong>#@o.ID</strong></td>
+                        <td>@o.User.FullName</td>
+                        <td><small>@o.User.PhoneNumber<br />@o.User.Email</small></td>
+                        <td>@o.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="text-danger fw-bold">@total.ToString("#,##0") ₫</td>
+                        <td><span class="badge @badge">@o.Status</span></td>
+                        <td class="text-center">
+                            <a asp-action="Details" asp-route-id="@o.ID" class="btn btn-sm btn-primary">
+                                Xem chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Phân trang -->
+@if (totalPages > 1)
+{
+    <nav aria-label="Phân trang">
+        <ul class="pagination justify-content-center mt-3">
+
+            <!-- Trang đầu -->
+            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="1" asp-route-search="@search">
+                    <i class="bi bi-chevron-double-left"></i>
+                </a>
+            </li>
+
+            <!-- Trang trước -->
+            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-search="@search">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+
+            @{
+                int start = Math.Max(1, currentPage - 2);
+                int end = Math.Min(totalPages, start + maxPagesToShow - 1);
+                if (end - start < maxPagesToShow - 1)
+                {
+                    start = Math.Max(1, end - maxPagesToShow + 1);
+                }
+            }
+
+            @if (start > 1)
+            {
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            }
+
+            @for (int i = start; i <= end; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-search="@search">@i</a>
+                </li>
+            }
+
+            @if (end < totalPages)
+            {
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            }
+
+            <!-- Trang sau -->
+            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-search="@search">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+
+            <!-- Trang cuối -->
+            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@totalPages" asp-route-search="@search">
+                    <i class="bi bi-chevron-double-right"></i>
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+}

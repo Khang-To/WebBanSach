@@ -27,7 +27,7 @@ namespace WebBanSach.Filters
                 }
                 else
                 {
-                    // Chuyển hướng về trang Login (không thuộc area)
+                    // Chuyển hướng về trang Login
                     context.Result = new RedirectToActionResult(LoginAction, LoginController, new { area = "Admin" });
                 }
 

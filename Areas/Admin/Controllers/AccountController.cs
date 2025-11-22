@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
+using WebBanSach.Filters;
 using WebBanSach.Models;
 
 namespace WebBanSach.Areas.Admin.Controllers
@@ -52,6 +53,113 @@ namespace WebBanSach.Areas.Admin.Controllers
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
+            return RedirectToAction("Login");
+        }
+
+        [AdminAuthorize]// filter bạn đã tạo
+        public IActionResult Profile()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var admin = _context.AppUsers.Find(userId);
+
+            if (admin == null) return NotFound();
+
+            return View(admin);
+        }
+
+        // GET: Sửa thông tin
+        [AdminAuthorize]
+        public IActionResult EditProfile()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var admin = _context.AppUsers.Find(userId);
+
+            return View(admin);
+        }
+
+        // POST: Sửa thông tin
+        [AdminAuthorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditProfile(AppUser model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var admin = _context.AppUsers.Find(userId);
+
+            if (admin == null) return NotFound();
+
+            // Chỉ cho sửa những field này (không cho sửa UserName, UserType, IsActive ở đây)
+            admin.FullName = model.FullName;
+            admin.Email = model.Email;
+            admin.PhoneNumber = model.PhoneNumber;
+            admin.Address = model.Address;
+
+            try
+            {
+                _context.Update(admin);
+                _context.SaveChanges();
+                TempData["Success"] = "Cập nhật thông tin thành công!";
+                return RedirectToAction(nameof(Profile));
+            }
+            catch
+            {
+                ModelState.AddModelError("", "Có lỗi xảy ra khi lưu dữ liệu.");
+                return View(model);
+            }
+        }
+
+        // GET: Đổi mật khẩu
+        [AdminAuthorize]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        // POST: Đổi mật khẩu
+        [AdminAuthorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ChangePassword(string oldPassword, string newPassword, string confirmPassword)
+        {
+            if (string.IsNullOrEmpty(oldPassword) || string.IsNullOrEmpty(newPassword) || string.IsNullOrEmpty(confirmPassword))
+            {
+                ViewBag.Error = "Vui lòng nhập đầy đủ thông tin.";
+                return View();
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                ViewBag.Error = "Mật khẩu xác nhận không khớp.";
+                return View();
+            }
+
+            if (newPassword.Length < 6)
+            {
+                ViewBag.Error = "Mật khẩu mới phải ít nhất 6 ký tự.";
+                return View();
+            }
+
+            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var admin = _context.AppUsers.Find(userId);
+
+            if (admin == null) return NotFound();
+
+            // Kiểm tra mật khẩu cũ
+            if (!BCrypt.Net.BCrypt.Verify(oldPassword, admin.PasswordHash))
+            {
+                ViewBag.Error = "Mật khẩu cũ không đúng.";
+                return View();
+            }
+
+            // Cập nhật mật khẩu mới
+            admin.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            _context.Update(admin);
+            _context.SaveChanges();
+
+            TempData["Success"] = "Đổi mật khẩu thành công!";
             return RedirectToAction("Login");
         }
     }
