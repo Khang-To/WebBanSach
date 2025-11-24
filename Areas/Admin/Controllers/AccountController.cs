@@ -41,10 +41,13 @@ namespace WebBanSach.Areas.Admin.Controllers
             HttpContext.Session.SetInt32("UserId", user.ID);
             HttpContext.Session.SetString("UserName", user.UserName);
             HttpContext.Session.SetString("UserType", user.UserType.ToString());
+            HttpContext.Session.SetString("AdminName", user.FullName ?? "Admin");
 
             // Điều hướng
             if (user.UserType == UserType.Admin)
+            {
                 return RedirectToAction("Index", "Home", new { area = "Admin" });
+            }
 
             return RedirectToAction("Index", "Home");
         }

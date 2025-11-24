@@ -16,7 +16,7 @@ namespace WebBanSach.Models
 
         [Range(1, int.MaxValue)]
         [Display(Name = "Số lượng")]
-        public int Quantity { get; set; }
+        public int Quantity { get; set; }   // số lượng mua
 
         [Range(0, double.MaxValue)]
         [Display(Name = "Đơn giá")]

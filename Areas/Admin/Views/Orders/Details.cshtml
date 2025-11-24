@@ -15,16 +15,16 @@
         <div class="card-body">
             <dl class="row mb-0">
                 <dt class="col-sm-3">Họ tên</dt>
-                <dd class="col-sm-9">@Model.User.FullName</dd>
+                <dd class="col-sm-9">@Model.User?.FullName</dd>
 
                 <dt class="col-sm-3">Số điện thoại</dt>
-                <dd class="col-sm-9">@Model.User.PhoneNumber</dd>
+                <dd class="col-sm-9">@Model.User?.PhoneNumber</dd>
 
                 <dt class="col-sm-3">Email</dt>
-                <dd class="col-sm-9">@Model.User.Email</dd>
+                <dd class="col-sm-9">@Model.User?.Email</dd>
 
                 <dt class="col-sm-3">Địa chỉ</dt>
-                <dd class="col-sm-9">@(Model.User.Address ?? "Chưa cung cấp")</dd>
+                <dd class="col-sm-9">@(Model.User?.Address ?? "Chưa cung cấp")</dd>
 
                 <dt class="col-sm-3">Ngày đặt</dt>
                 <dd class="col-sm-9">@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</dd>
@@ -60,15 +60,15 @@
                             var thanhTien = item.Quantity * item.UnitPrice;
                             tongCong += thanhTien;
                             <tr>
-                                <td>@item.Product.Name</td>
+                                <td>@item.?Product.Name</td>
                                 <td class="text-center">@item.Quantity</td>
-                                <td class="text-end">@item.UnitPrice.ToString("#,##0") ₫</td>
-                                <td class="text-end fw-bold">@thanhTien.ToString("#,##0") ₫</td>
+                                <td class="text-end">@item.UnitPrice.ToString("n0") ₫</td>
+                                <td class="text-end fw-bold">@thanhTien.ToString("n0") ₫</td>
                             </tr>
                         }
                         <tr class="table-success fw-bold fs-5">
                             <td colspan="3" class="text-end">Tổng cộng:</td>
-                            <td class="text-end text-danger">@tongCong.ToString("#,##0") ₫</td>
+                            <td class="text-end text-danger">@tongCong.ToString("n0") ₫</td>
                         </tr>
                     </tbody>
                 </table>
