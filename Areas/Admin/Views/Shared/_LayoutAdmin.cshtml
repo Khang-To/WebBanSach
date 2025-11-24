@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -29,7 +31,7 @@
 		<nav id="sidebar" class="sidebar js-sidebar">
 			<div class="sidebar-content js-simplebar">
 				<a class="sidebar-brand text-decoration-none" asp-controller="Home" asp-action="Index">
-					<span class="align-middle">ABC Shop</span>
+					<span class="align-middle">TKBook</span>
 				</a>
 
 				<ul class="sidebar-nav">
@@ -132,16 +134,21 @@
 							</a>
 
 							<a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
-								<span class="text-dark">Cá nhân</span>
+								<span class="text-dark">
+									@{
+										var adminName = HttpContextAccessor.HttpContext?.Session.GetString("AdminName") ?? "Cá nhân";
+									}
+									@adminName
+								</span>
 							</a>
+
 							<div class="dropdown-menu dropdown-menu-end">
-								<a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="align-middle me-1" data-feather="user"></i> Hồ sơ cá nhân</a>
-								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="pie-chart"></i> Analytics</a>
+								<a class="dropdown-item" asp-area="Admin" asp-controller="Account" asp-action="Profile"><i class="align-middle me-1" data-feather="user"></i> Hồ sơ cá nhân</a>
 								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" href="index.html"><i class="align-middle me-1" data-feather="settings"></i> Settings & Privacy</a>
-								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="help-circle"></i> Help Center</a>
+								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="settings"></i> Cài đặt & Quyền riêng tư</a>
+								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="help-circle"></i> Trung tâm trợ giúp</a>
 								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" asp-controller="Account" asp-action="Logout" >Đăng xuất</a>
+								<a class="dropdown-item" asp-area="Admin" asp-controller="Account" asp-action="Logout" >Đăng xuất</a>
 							</div>
 						</li>
 					</ul>
@@ -163,7 +170,7 @@
 					<div class="row text-muted">
 						<div class="col-6 text-start">
 							<p class="mb-0 mx-auto">
-								<a class="text-muted" href=""><strong>ABC Shop</strong></a>
+								<a class="text-muted" href=""><strong>TKBook</strong></a>
 							</p>
 						</div>
 						<div class="col-6 text-end">

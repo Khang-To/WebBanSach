@@ -13,61 +13,76 @@ namespace WebBanSach.Areas.Admin.Controllers
     public class OrdersController : Controller
     {
         private readonly ApplicationDbContext _context;
-
         public OrdersController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Admin/Orders
-        public async Task<IActionResult> Index(string search, string status = "all", int page = 1)
+        public async Task<IActionResult> Index(string search, string status = "all", int? userId = null, int page = 1)
         {
-            int pageSize = 10; // Số đơn mỗi trang
+            int pageSize = 10;
 
             var orders = _context.Orders
-                            .Include(o => o.User)
-                            .Include(o => o.OrderDetails)
-                            .AsQueryable();
+                                .Include(o => o.User)
+                                .Include(o => o.OrderDetails)
+                                .AsQueryable();
 
-            // --- Tìm kiếm ---
-            if (!string.IsNullOrEmpty(search))
+            // ========== 1. Lọc theo User ==========
+            string customerName = "";
+
+            if (userId.HasValue)
+            {
+                orders = orders.Where(o => o.UserId == userId.Value);
+
+                var customer = await _context.AppUsers.FindAsync(userId.Value);
+
+                customerName = customer?.FullName ?? $"Khách hàng ID {userId}";
+            }
+
+            // ========== 2. Search (chỉ dùng khi không có userId) ==========
+            if (!string.IsNullOrWhiteSpace(search) && !userId.HasValue)
             {
                 search = search.Trim().ToLower();
+
                 orders = orders.Where(o =>
                     o.ID.ToString().Contains(search) ||
                     o.User.FullName.ToLower().Contains(search) ||
                     o.User.Email.ToLower().Contains(search) ||
-                    (o.User.PhoneNumber != null && o.User.PhoneNumber.Contains(search)));
+                    (o.User.PhoneNumber != null && o.User.PhoneNumber.Contains(search))
+                );
             }
 
-            // --- Lọc trạng thái ---
-            if (!string.IsNullOrEmpty(status) && status != "all")
+            // ========== 3. Filter status ==========
+            if (!string.IsNullOrWhiteSpace(status) && status != "all")
             {
-                var stt = Enum.Parse<OrderStatus>(status);
-                orders = orders.Where(o => o.Status == stt);
+                if (Enum.TryParse<OrderStatus>(status, out var st))
+                {
+                    orders = orders.Where(o => o.Status == st);
+                }
             }
 
+            // ========== 4. Order list ==========
             orders = orders.OrderByDescending(o => o.OrderDate);
 
-            // --- Tổng số đơn ---
+            // ========== 5. Pagination ==========
             int totalOrders = await orders.CountAsync();
-
-            // --- Tổng số trang ---
             int totalPages = (int)Math.Ceiling(totalOrders / (double)pageSize);
 
-            // --- Lấy dữ liệu của trang hiện tại ---
             var data = await orders
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            // --- Trả dữ liệu ra View ---
+            // ========== 6. Gửi ra View ==========
             ViewBag.Search = search;
             ViewBag.Status = status;
+
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
-            ViewBag.PageSize = pageSize;
-            ViewBag.MaxPagesToShow = 5;
+
+            ViewBag.UserId = userId;
+            ViewBag.CustomerName = customerName;
+            ViewBag.TotalOrders = totalOrders;
 
             return View(data);
         }
@@ -77,15 +92,12 @@ namespace WebBanSach.Areas.Admin.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
-
             var order = await _context.Orders
                 .Include(o => o.User)
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Product)
                 .FirstOrDefaultAsync(o => o.ID == id.Value);
-
             if (order == null) return NotFound();
-
             return View(order);
         }
 

@@ -1,26 +1,38 @@
 ﻿@model IEnumerable<WebBanSach.Models.Order>
-
 @{
-    ViewData["Title"] = "Danh mục đơn hàng";
+    ViewData["Title"] = ViewBag.UserId != null ? "Đơn hàng của " + ViewBag.CustomerName : "Danh mục đơn hàng";
     var search = ViewBag.Search as string ?? "";
     var status = ViewBag.Status as string ?? "all";
     var currentPage = ViewBag.CurrentPage as int? ?? 1;
     var totalPages = ViewBag.TotalPages as int? ?? 1;
-    int maxPagesToShow = 5; // số trang hiển thị tối đa ở giữa
+    var userId = ViewBag.UserId as int?;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold text-primary mb-0">
         <i class="bi bi-tags-fill"></i> @ViewData["Title"]
+        @if (userId.HasValue)
+        {
+            <small class="text-muted">(Có @ViewBag.TotalOrders đơn hàng)</small>
+        }
     </h2>
+    @if (userId.HasValue)
+    {
+        <a asp-controller="AppUsers" asp-action="Details" asp-route-userId="@userId" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại khách hàng
+        </a>
+    }
 </div>
 
-<!-- Form lọc -->
 <form asp-action="Index" method="get" class="row g-3 mb-4 p-3 bg-light rounded shadow-sm">
-    <div class="col-md-5">
-        <input type="text" name="search" value="@search" class="form-control"
-               placeholder="Tìm khách hàng, mã đơn, SĐT, email..." />
-    </div>
+
+    @if (!userId.HasValue)
+    {
+        <div class="col-md-5">
+            <input type="text" name="search" value="@search" class="form-control"
+                   placeholder="Tìm khách hàng, mã đơn, SĐT, email..." />
+        </div>
+    }
 
     <div class="col-md-3">
         <select name="status" class="form-select" asp-items="Html.GetEnumSelectList<OrderStatus>()">
@@ -28,13 +40,21 @@
         </select>
     </div>
 
+    <!-- Giữ userId khi submit -->
+    <input type="hidden" name="userId" value="@userId" />
+
     <div class="col-md-2">
         <button type="submit" class="btn btn-primary w-100">Lọc</button>
     </div>
+
     <div class="col-md-2">
-        <a asp-action="Index" class="btn btn-outline-secondary w-100">Hiện tất cả</a>
+        <a asp-action="Index" asp-route-userId="@userId" class="btn btn-outline-secondary w-100">
+            Hiện tất cả
+        </a>
     </div>
+
 </form>
+
 
 <!-- Table danh sách -->
 <div class="table-responsive shadow-sm rounded">
@@ -73,13 +93,12 @@
                         OrderStatus.Cancelled => "bg-danger text-white",
                         _ => "bg-secondary"
                     };
-
                     <tr>
                         <td><strong>#@o.ID</strong></td>
-                        <td>@o.User.FullName</td>
-                        <td><small>@o.User.PhoneNumber<br />@o.User.Email</small></td>
+                        <td>@o.User?.FullName</td>
+                        <td><small>@o.User?.PhoneNumber<br />@o.User?.Email</small></td>
                         <td>@o.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
-                        <td class="text-danger fw-bold">@total.ToString("#,##0") ₫</td>
+                        <td class="text-danger fw-bold">@total.ToString("N0") ₫</td>
                         <td><span class="badge @badge">@o.Status</span></td>
                         <td class="text-center">
                             <a asp-action="Details" asp-route-id="@o.ID" class="btn btn-sm btn-primary">
@@ -93,7 +112,6 @@
     </table>
 </div>
 
-<!-- Phân trang -->
 @if (totalPages > 1)
 {
     <nav aria-label="Phân trang">
@@ -101,54 +119,67 @@
 
             <!-- Trang đầu -->
             <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                <a class="page-link" asp-action="Index" asp-route-page="1" asp-route-search="@search">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="1"
+                   asp-route-search="@search"
+                   asp-route-status="@status"
+                   asp-route-userId="@(userId?.ToString())">
+
                     <i class="bi bi-chevron-double-left"></i>
                 </a>
             </li>
 
             <!-- Trang trước -->
             <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-search="@search">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@(currentPage - 1)"
+                   asp-route-search="@search"
+                   asp-route-status="@status"
+                   asp-route-userId="@(userId?.ToString())">
+
                     <i class="bi bi-chevron-left"></i>
                 </a>
             </li>
 
-            @{
-                int start = Math.Max(1, currentPage - 2);
-                int end = Math.Min(totalPages, start + maxPagesToShow - 1);
-                if (end - start < maxPagesToShow - 1)
-                {
-                    start = Math.Max(1, end - maxPagesToShow + 1);
-                }
-            }
-
-            @if (start > 1)
-            {
-                <li class="page-item disabled"><span class="page-link">...</span></li>
-            }
-
-            @for (int i = start; i <= end; i++)
+            @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
             {
                 <li class="page-item @(i == currentPage ? "active" : "")">
-                    <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-search="@search">@i</a>
-                </li>
-            }
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@i"
+                       asp-route-search="@search"
+                       asp-route-status="@status"
+                       asp-route-userId="@(userId?.ToString())">
 
-            @if (end < totalPages)
-            {
-                <li class="page-item disabled"><span class="page-link">...</span></li>
+                        @i
+                    </a>
+                </li>
             }
 
             <!-- Trang sau -->
             <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-search="@search">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@(currentPage + 1)"
+                   asp-route-search="@search"
+                   asp-route-status="@status"
+                   asp-route-userId="@(userId?.ToString())">
+
                     <i class="bi bi-chevron-right"></i>
                 </a>
             </li>
 
             <!-- Trang cuối -->
             <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                <a class="page-link" asp-action="Index" asp-route-page="@totalPages" asp-route-search="@search">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@totalPages"
+                   asp-route-search="@search"
+                   asp-route-status="@status"
+                   asp-route-userId="@(userId?.ToString())">
+
                     <i class="bi bi-chevron-double-right"></i>
                 </a>
             </li>

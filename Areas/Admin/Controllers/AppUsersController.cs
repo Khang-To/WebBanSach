@@ -52,15 +52,15 @@ namespace WebBanSach.Areas.Admin.Controllers
         }
 
         // GET: Admin/AppUsers/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? userId)
         {
-            if (id == null)
+            if (userId == null)
             {
                 return NotFound();
             }
 
             var appUser = await _context.AppUsers
-                .FirstOrDefaultAsync(m => m.ID == id);
+                .FirstOrDefaultAsync(m => m.ID == userId);
             if (appUser == null)
             {
                 return NotFound();

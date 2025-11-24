@@ -84,13 +84,13 @@
                                         <div class="btn-group" role="group">
 
                                             <!-- Xem chi tiết -->
-                                            <a asp-action="Details" asp-route-id="@item.ID"
+                                            <a asp-action="Details" asp-route-userId="@item.ID"
                                                class="btn btn-sm btn-outline-info" title="Xem chi tiết khách hàng">
                                                 <i class="bi bi-person-vcard"></i>
                                             </a>
 
                                             <!-- Xem đơn hàng của khách -->
-                                            <a asp-action="Orders" asp-route-customerId="@item.ID"
+                                            <a asp-controller="Orders" asp-action="Index" asp-route-userId="@item.ID"
                                                class="btn btn-sm btn-outline-primary" title="Xem đơn hàng của khách">
                                                 <i class="bi bi-bag-check"></i>
                                             </a>

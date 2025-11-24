@@ -1,0 +1,213 @@
+﻿@model IEnumerable<WebBanSach.Models.Product>
+
+@{
+    ViewData["Title"] = "Sản phẩm - TKBook";
+    var categoryId = ViewBag.CategoryId as int?;
+    var sortPrice = ViewBag.SortPrice as string ?? "default";
+    var currentPage = ViewBag.CurrentPage as int? ?? 1;
+    var totalPages = ViewBag.TotalPages as int? ?? 1;
+    var categories = ViewBag.Categories as List<ProductCategory>;
+}
+
+<style>
+    .product-card {
+        background: #fff;
+        border: 1px solid #f0f0f0;
+        transition: all 0.3s ease;
+        position: relative;
+        width: 100%;
+        height: 100%; /* Đảm bảo card cao bằng nhau */
+    }
+
+	.product-card:hover {
+		transform: translateY(-5px);
+		box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+		border-color: #1abc9c;
+	}
+
+	.product-card img {
+        height: 220px;
+        width: auto;
+        max-width: 100%;
+        object-fit: contain;
+        margin: 0 auto;
+        padding-top: 15px;
+        display: block; /* Canh giữa ảnh tốt hơn */
+    }
+</style>
+
+<div class="container py-5">
+    <!-- Title + Lọc giá (top, giống hình) -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="fw-bold mb-3">
+
+                @if (!string.IsNullOrEmpty(ViewBag.Search))
+                {
+                    <text>Kết quả tìm kiếm</text>
+                }
+                else if (categoryId.HasValue)
+                {
+                    @(categories?.FirstOrDefault(c => c.ID == categoryId)?.Name ?? "Danh mục")
+                }
+                else
+                {
+                    <text>Tất cả sách</text>
+                }
+
+            </h1>
+
+            <!-- Dropdown lọc giá -->
+            <div class="d-flex justify-content-end">
+                <select class="form-select w-auto" onchange="location = this.value;">
+                    <option value="@Url.Action("Index", new { categoryId, sortPrice = "default", page = 1 })" selected="@(sortPrice == "default")">Mới nhất</option>
+                    <option value="@Url.Action("Index", new { categoryId, sortPrice = "low-to-high", page = 1 })" selected="@(sortPrice == "low-to-high")">Giá thấp → cao</option>
+                    <option value="@Url.Action("Index", new { categoryId, sortPrice = "high-to-low", page = 1 })" selected="@(sortPrice == "high-to-low")">Giá cao → thấp</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layout: Sidebar trái + Grid phải (giống hình) -->
+    <div class="row">
+        <!-- Sidebar trái: Danh mục (active khi chọn) -->
+        <div class="col-lg-3 col-md-4 mb-4">
+            <div class="card align-self-start shadow-sm">
+                <div class="card-header fw-bold text-success">
+                    DANH MỤC SẢN PHẨM
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <a asp-controller="Products" asp-action="Index" class="text-dark text-decoration-none @(categoryId == null ? "fw-bold text-success" : "")">
+                                <i class="bi bi-house-door me-2"></i>Tất cả sách
+                            </a>
+                        </li>
+                        @foreach (var cat in categories ?? new List<ProductCategory>())
+                        {
+                            <li class="mb-3">
+                                <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@cat.ID" class="text-dark text-decoration-none @(categoryId == cat.ID ? "fw-bold text-success" : "")">
+                                    <i class="bi bi-book me-2"></i>@cat.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid sản phẩm phải-->
+        <div class="col-lg-9 col-md-8">
+
+            <!-- Kết quả tìm kiếm theo search trên thanh tìm kiếm -->
+            @if (!string.IsNullOrEmpty(ViewBag.Search))
+            {
+                <div class="mb-4 p-3 bg-light border rounded">
+                    <h5 class="mb-1">
+                        🔎 Tìm thấy <span class="text-success fw-bold">@ViewBag.TotalProducts</span> kết quả
+                    </h5>
+                    <p class="m-0">
+                        Với từ khóa: <span class="fw-bold text-primary">"@ViewBag.Search"</span>
+                    </p>
+                </div>
+            }
+
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-search fs-1 text-muted"></i>
+                    <h5 class="text-muted mt-3">Không tìm thấy sách phù hợp</h5>
+
+                    @if (!string.IsNullOrEmpty(ViewBag.Search))
+                    {
+                        <p class="text-muted">Từ khóa: <span class="fw-bold">"@ViewBag.Search"</span></p>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="row g-4">
+                    @foreach (var product in Model)
+                    {
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <partial name="_ProductCard" model="product" />
+                        </div>
+                    }
+                </div>
+
+                <!-- PHÂN TRANG GIỮ LỌC (code bạn gửi, chỉ giữ categoryId + sortPrice) -->
+                @if (totalPages > 1)
+                {
+                    <nav aria-label="Phân trang" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <!-- Trang đầu -->
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-page="1"
+                                   asp-route-productCategoryId="@categoryId"
+                                   asp-route-sortPrice="@sortPrice">
+                                    <i class="bi bi-chevron-double-left"></i>
+                                </a>
+                            </li>
+                            <!-- Trang trước -->
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-page="@(currentPage - 1)"
+                                   asp-route-productCategoryId="@categoryId"
+                                   asp-route-sortPrice="@sortPrice">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+                            @{
+                                int startPage = Math.Max(1, currentPage - 2);
+                                int endPage = Math.Min(totalPages, currentPage + 2);
+                            }
+                            @if (startPage > 1)
+                            {
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            }
+                            @for (int i = startPage; i <= endPage; i++)
+                            {
+                                <li class="page-item @(i == currentPage ? "active" : "")">
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-page="@i"
+                                       asp-route-productCategoryId="@categoryId"
+                                       asp-route-sortPrice="@sortPrice">
+                                        @i
+                                    </a>
+                                </li>
+                            }
+                            @if (endPage < totalPages)
+                            {
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            }
+                            <!-- Trang sau -->
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-page="@(currentPage + 1)"
+                                   asp-route-productCategoryId="@categoryId"
+                                   asp-route-sortPrice="@sortPrice">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                            <!-- Trang cuối -->
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-page="@totalPages"
+                                   asp-route-productCategoryId="@categoryId"
+                                   asp-route-sortPrice="@sortPrice">
+                                    <i class="bi bi-chevron-double-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            }
+        </div>
+    </div>
+</div>
