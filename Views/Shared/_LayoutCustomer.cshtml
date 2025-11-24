@@ -49,7 +49,7 @@
     </style>
 </head>
 
-<body id="top">
+<body id="top" class="d-flex flex-column min-vh-100">
     <!-- ==================== HEADER ==================== -->
     <header class="border-bottom">
 
@@ -72,8 +72,7 @@
                 <!-- Actions -->
                 <div class="col-lg-3 col-12 text-center text-lg-end">
                     <div class="d-flex">
-                        <a href="#" class="btn btn-outline-success"><i class="bi bi-person"></i> Đăng nhập</a>&nbsp;
-                        <a href="#" class="btn btn-outline-success"><i class="bi bi-cart3"></i> Giỏ hàng <span class="badge bg-danger text-white ms-1 rounded-pill">0</span></a>
+                        <partial name="_LoginPartial" />
                     </div>
                 </div>
             </div>
@@ -121,7 +120,7 @@
                     </span>
 
                     <span class="text-dark">
-                        <i class="bi bi-telephone-fill text-success"></i> 0123456789
+                        <i class="bi bi-telephone-fill text-success"></i> 076 3841 190
                     </span>
 
                 </div>
@@ -130,7 +129,7 @@
 
     </header>
 
-    <div class="container px-4 px-lg-5">
+    <div class="container px-4 px-lg-5  d-flex flex-column min-vh-100">
         @RenderBody()
     </div>
 
@@ -143,7 +142,7 @@
                 <div class="col-6 text-light">
                     <h4>ABC Shop - Cửa hàng văn phòng phẩm</h4>
                     <p>Địa chỉ: 18 Ung Văn Khiêm, phường Đông Xuyên, TP Long Xuyên, An Giang</p>
-                    <p>Điện thoại: 076 3841190 - Email: abc@abc.com</p>
+                    <p>Điện thoại: 076 3841 190 - Email: TKBook-contact@gmail.com</p>
                 </div>
                 <div class="col-3 text-white">
                     <h4>DANH MỤC HÀNG</h4>
