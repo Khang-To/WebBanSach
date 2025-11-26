@@ -1,4 +1,18 @@
 ﻿@model IEnumerable<WebBanSach.Models.Order>
+@using System.ComponentModel.DataAnnotations
+
+@functions {
+    string GetDisplayName(Enum value)
+    {
+        var attr = value.GetType()
+            .GetField(value.ToString())
+            .GetCustomAttributes(typeof(DisplayAttribute), false)
+            .FirstOrDefault() as DisplayAttribute;
+
+        return attr?.Name ?? value.ToString();
+    }
+}
+
 @{
     ViewData["Title"] = ViewBag.UserId != null ? "Đơn hàng của " + ViewBag.CustomerName : "Danh mục đơn hàng";
     var search = ViewBag.Search as string ?? "";
@@ -99,7 +113,11 @@
                         <td><small>@o.User?.PhoneNumber<br />@o.User?.Email</small></td>
                         <td>@o.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
                         <td class="text-danger fw-bold">@total.ToString("N0") ₫</td>
-                        <td><span class="badge @badge">@o.Status</span></td>
+                        <td>
+                            <span class="badge @badge">
+                                @GetDisplayName(o.Status)
+                            </span>
+                        </td>
                         <td class="text-center">
                             <a asp-action="Details" asp-route-id="@o.ID" class="btn btn-sm btn-primary">
                                 Xem chi tiết

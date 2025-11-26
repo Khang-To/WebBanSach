@@ -18,13 +18,12 @@ namespace WebBanSach.Filters
         {
             var session = context.HttpContext.Session;
 
-            var userId = session.GetInt32("UserId");
-            var userType = session.GetString("UserType");
+            // ĐỌC KEY RIÊNG CỦA KHÁCH
+            var userId = session.GetInt32("Customer_UserId");
+            var userType = session.GetString("Customer_UserType");
 
-            // Nếu chưa đăng nhập HOẶC không phải Customer → chặn
             if (!userId.HasValue || userType != "Customer")
             {
-                // Nếu là request AJAX/API → trả 401 JSON (rất quan trọng cho Vue/React/SPA sau này)
                 bool isAjax = context.HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
                               context.HttpContext.Request.Headers["Accept"].ToString().Contains("application/json");
 
@@ -37,19 +36,12 @@ namespace WebBanSach.Filters
                 }
                 else
                 {
-                    // Lưu URL hiện tại để quay lại sau khi login thành công
                     var returnUrl = context.HttpContext.Request.Path + context.HttpContext.Request.QueryString;
-
-                    context.Result = new RedirectToActionResult(
-                        actionName: LoginAction,
-                        controllerName: LoginController,
-                        routeValues: new { area = "", returnUrl = returnUrl }  // area rỗng = trang khách
-                    );
+                    context.Result = new RedirectToActionResult("Login", "Account", new { returnUrl });
                 }
                 return;
             }
 
-            // Đã là Customer → cho qua
             base.OnActionExecuting(context);
         }
     }

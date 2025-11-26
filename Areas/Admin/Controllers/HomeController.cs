@@ -6,75 +6,80 @@ using WebBanSach.Models;
 namespace WebBanSach.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    //[AdminAuthorize]
+    [AdminAuthorize]
     public class HomeController : Controller
     {
-        private readonly ApplicationDbContext _db;
-        public HomeController(ApplicationDbContext db)
+        private readonly ApplicationDbContext _context;
+
+        public HomeController(ApplicationDbContext context)
         {
-            _db = db;
+            _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             // Tổng quan
-            ViewBag.TotalProducts = _db.Products.Count();
-            ViewBag.TotalCategories = _db.ProductCategories.Count();
-            ViewBag.TotalPublishers = _db.Publishers.Count();
-            ViewBag.TotalCustomers = _db.AppUsers.Count(u => u.UserType == UserType.Customer);
-            ViewBag.TotalOrders = _db.Orders.Count();
-            ViewBag.TotalRevenue = _db.OrderDetails.Sum(od => od.Quantity * od.UnitPrice); // Đơn giá * số lượng
+            ViewBag.TotalProducts = await _context.Products.CountAsync();
+            ViewBag.TotalCategories = await _context.ProductCategories.CountAsync();
+            ViewBag.TotalPublishers = await _context.Publishers.CountAsync();
+            ViewBag.TotalCustomers = await _context.AppUsers.CountAsync(u => u.UserType == UserType.Customer);
+            ViewBag.TotalOrders = await _context.Orders.CountAsync();
+            ViewBag.TotalRevenue = await _context.OrderDetails
+                                                 .Where(od => od.Order.Status == OrderStatus.Paid)
+                                                 .SumAsync(od => (int?)od.Quantity * od.UnitPrice) ?? 0;
 
 
-            // Recent Orders
-            ViewBag.RecentOrders = _db.Orders
+            // 10 ĐƠN HÀNG CHƯA XÁC NHẬN MỚI NHẤT
+            ViewBag.RecentOrders = await _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.OrderDetails) // thêm dòng này để đảm bảo không Null
+                .Where(o => o.Status == OrderStatus.Pending)
                 .OrderByDescending(o => o.OrderDate)
-                .Take(5)
-                .Select(o => new {
-                    o.ID,
-                    o.UserId,
-                    CustomerName = o.User.FullName,
+                .Take(10)
+                .Select(o => new
+                {
+                    OrderId = o.ID,
                     o.OrderDate,
-                    o.Status
-                }).ToList();
+                    o.Status,
+                    CustomerName = o.User.FullName,
+                    TotalAmount = o.OrderDetails.Any() ? o.OrderDetails.Sum(od => od.Quantity * od.UnitPrice) : 0  
+                })
+                .ToListAsync();
 
-            // Recent Customers
-            ViewBag.RecentCustomers = _db.AppUsers
-                .Where(u => u.UserType == UserType.Customer)
-                .OrderByDescending(u => u.ID)
-                .Take(5)
-                .Select(u => new {
-                    u.FullName,
-                    u.Email
-                }).ToList();
 
-            // Biểu đồ doanh thu theo tháng
-            var revenueData = _db.OrderDetails
+            // Biểu đồ doanh thu theo tháng (giữ nguyên)
+            var revenueData = await _context.OrderDetails
                 .Include(od => od.Order)
+                .Where(od => od.Order != null && od.Order.Status == OrderStatus.Paid)
                 .GroupBy(od => od.Order.OrderDate.Month)
-                .Select(g => new {
+                .Select(g => new
+                {
                     Month = g.Key,
                     Total = g.Sum(od => od.Quantity * od.UnitPrice)
                 })
-                .OrderBy(g => g.Month)
-                .ToList();
+                .ToListAsync();
 
-            ViewBag.MonthLabels = "[" + string.Join(",", revenueData.Select(d => $"\"Th{d.Month}\"")) + "]";
+
+            ViewBag.MonthLabels = "[" + string.Join(",", revenueData.Select(d => $"\"Tháng {d.Month}\"")) + "]";
             ViewBag.MonthRevenue = "[" + string.Join(",", revenueData.Select(d => d.Total)) + "]";
 
-
-            // Biểu đồ đơn hàng theo trạng thái
-            var statusCounts = _db.Orders
+            // Biểu đồ trạng thái đơn hàng
+            var statusCounts = await _context.Orders
                 .GroupBy(o => o.Status)
-                .Select(g => new { Status = g.Key, Count = g.Count() })
-                .ToList();
+                .Select(g => new
+                {
+                    Status = g.Key,
+                    Count = g.Count()
+                })
+                .ToListAsync();
+
 
             int pending = statusCounts.FirstOrDefault(s => s.Status == OrderStatus.Pending)?.Count ?? 0;
-            int confirm = statusCounts.FirstOrDefault(s => s.Status == OrderStatus.Confirmed)?.Count ?? 0;
+            int confirmed = statusCounts.FirstOrDefault(s => s.Status == OrderStatus.Confirmed)?.Count ?? 0;
             int paid = statusCounts.FirstOrDefault(s => s.Status == OrderStatus.Paid)?.Count ?? 0;
             int cancelled = statusCounts.FirstOrDefault(s => s.Status == OrderStatus.Cancelled)?.Count ?? 0;
 
-            ViewBag.OrderStatusCounts = $"[{pending},{confirm},{paid},{cancelled}]";
+            ViewBag.OrderStatusCounts = $"[{pending},{confirmed},{paid},{cancelled}]";
 
             return View();
         }

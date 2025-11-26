@@ -1,0 +1,138 @@
+﻿@{
+    ViewData["Title"] = "Thống kê doanh thu & đơn hàng";
+}
+
+<div class="container-fluid py-4">
+    <h2 class="mb-4 text-primary">
+        <i class="bi bi-graph-up-arrow"></i> Thống kê doanh thu & đơn hàng
+    </h2>
+
+    <!-- Thông báo đảo ngày -->
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> @TempData["Warning"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Form lọc ngày -->
+    <div class="card mb-4 shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-calendar-range"></i> Chọn khoảng thời gian</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label fw-bold">Từ ngày</label>
+                    <input type="date" name="fromDate" value="@ViewBag.FromDate" class="form-control form-control-lg" required />
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label fw-bold">Đến ngày</label>
+                    <input type="date" name="toDate" value="@ViewBag.ToDate" class="form-control form-control-lg" required />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="bi bi-search"></i> Xem
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ROW 1: 4 CARD SỐ LIỆU -->
+    <div class="row g-4 mb-5">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white shadow-lg h-100">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <i class="bi bi-receipt fs-1 mb-3"></i>
+                    <h5>Tổng đơn hàng</h5>
+                    <h1 class="display-5 fw-bold mb-0">@ViewBag.TotalOrders</h1>
+                    <small>@ViewBag.Period</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white shadow-lg h-100">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <i class="bi bi-check-circle-fill fs-1 mb-3"></i>
+                    <h5>Đơn thành công</h5>
+                    <h1 class="display-5 fw-bold mb-0">@ViewBag.TotalPaidOrders</h1>
+                    <small>Đã thanh toán</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white shadow-lg h-100">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <i class="bi bi-x-circle-fill fs-1 mb-3"></i>
+                    <h5>Đơn đã hủy</h5>
+                    <h1 class="display-5 fw-bold mb-0">@ViewBag.TotalCancelledOrders</h1>
+                    <small>Đã hoàn kho</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-dark shadow-lg h-100">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <i class="bi bi-currency-exchange fs-1 mb-3"></i>
+                    <h5>Tổng doanh thu</h5>
+                    <h1 class="display-4 fw-bold mb-0">@ViewBag.TotalRevenue ₫</h1>
+                    <small class="text-muted">Chỉ tính đơn đã thanh toán</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROW 2: BIỂU ĐỒ DOANH THU THEO NGÀY -->
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0"><i class="bi bi-bar-chart-line-fill"></i> Biểu đồ doanh thu theo ngày</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="revenueChart" height="100"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js CDN + Script vẽ biểu đồ -->
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [@Html.Raw(ViewBag.ChartLabels)],      // "01/04", "02/04", ...
+                datasets: [{
+                    label: 'Doanh thu (₫)',
+                    data: [@Html.Raw(ViewBag.ChartData)],
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: {
+                        display: true,
+                        text: 'Doanh thu từng ngày từ @ViewBag.Period'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { callback: value => value.toLocaleString() + ' ₫' }
+                    }
+                }
+            }
+        });
+    </script>
+}

@@ -1,0 +1,85 @@
+﻿@model WebBanSach.Models.Order
+
+@{
+    ViewData["Title"] = "Xác nhận đặt hàng";
+    var items = ViewBag.CartItems as List<CartItem> ?? new List<CartItem>();
+    var total = ViewBag.TotalAmount ?? 0;
+    var user = ViewBag.CurrentUser as AppUser;
+}
+
+<div class="row mt-4">
+    <!-- Thông tin khách hàng -->
+    <div class="col-md-6">
+        <h4 class="text-info mb-3">Thông tin khách hàng</h4>
+        <form asp-controller="Orders" asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div class="mb-3">
+                <label>Email</label>
+                <input name="Email" class="form-control" type="email" value="@user.Email" readonly />
+            </div>
+            <div class="mb-3">
+                <label>Họ tên</label>
+                <input name="Name" class="form-control" type="text" value="@user.FullName" required />
+            </div>
+            <div class="mb-3">
+                <label>Điện thoại</label>
+                <input name="PhoneNumber" class="form-control" type="tel" value="@user.PhoneNumber" />
+            </div>
+            <div class="mb-3">
+                <label>Địa chỉ</label>
+                <textarea name="Address" class="form-control" rows="3">@user.Address</textarea>
+            </div>
+            <div class="mb-3">
+                <label>Ghi chú</label>
+                <textarea name="note" class="form-control" rows="3" placeholder="Ví dụ: Giao giờ hành chính..."></textarea>
+            </div>
+            <div class="mb-3 text-end">
+                <button type="submit" class="btn btn-primary">Xác nhận đơn hàng</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Thông tin đơn hàng -->
+    <div class="col-md-6">
+        <h4 class="text-info mb-3">Thông tin đơn hàng</h4>
+            <table class="table table-bordered">
+                <thead class="table-info">
+                    <tr>
+                        <th>STT</th>
+                        <th>Sản phẩm</th>
+                        <th>Giá</th>
+                        <th>Số lượng</th>
+                        <th>Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int stt = 1;
+                        decimal tongtien = 0;
+                    }
+                    @foreach (var item in items)
+                    {
+                        var thanhtien = item.Quantity * item.Product.FinalPrice;
+                        tongtien += thanhtien;
+                        <tr class="align-middle">
+                            <td>@(stt++)</td>
+                            <td>
+                                <img src="~/images/products/@item.Product.ImageUrl" width="50" class="img-thumbnail me-2" />
+                                @item.Product.Name
+                            </td>
+                            <td>@item.Product.FinalPrice.ToString("n0") đ</td>
+                            <td>@item.Quantity</td>
+                            <td>@thanhtien.ToString("n0") đ</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="fw-bold">
+                        <td colspan="4" class="text-end text-danger">Tổng tiền:</td>
+					<td><span class="text-danger">@tongtien.ToString("n0") đ</span></td>
+                    </tr>
+                </tfoot>
+            </table>
+        }
+    </div>
+</div>

@@ -94,7 +94,7 @@
                             <a class="nav-link dropdown-toggle fw-semibold" href="#" data-bs-toggle="dropdown">
                                 Danh mục sách
                             </a>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu" style="z-index: 9999;">
                                 <li><a asp-controller="Products" asp-action="Index" class="list-group-item ps-3"> Tất cả sách </a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>@await Component.InvokeAsync("CategoryMenu")</li>

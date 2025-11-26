@@ -22,7 +22,7 @@ namespace WebBanSach.Controllers
         private List<CartViewModel> GetCartItems()
         {
             //  Nếu đã login lấy giỏ từ database
-            var userId = HttpContext.Session.GetInt32("UserId");
+            var userId = HttpContext.Session.GetInt32("Customer_UserId");
             if (userId.HasValue)
             {
                 var dbItems = _context.CartItems
@@ -165,7 +165,7 @@ namespace WebBanSach.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult UpdateItem(int id, int quantity)
         {
-            var userId = HttpContext.Session.GetInt32("UserId");
+            var userId = HttpContext.Session.GetInt32("Customer_UserId");
             if (userId.HasValue)
             {
                 var cartItem = _context.CartItems.FirstOrDefault(x => x.UserId == userId.Value && x.ProductId == id);
@@ -210,7 +210,7 @@ namespace WebBanSach.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult RemoveItem(int id)
         {
-            var userId = HttpContext.Session.GetInt32("UserId");
+            var userId = HttpContext.Session.GetInt32("Customer_UserId");
             if (userId.HasValue)
             {
                 var cartItem = _context.CartItems.FirstOrDefault(x => x.UserId == userId.Value && x.ProductId == id);

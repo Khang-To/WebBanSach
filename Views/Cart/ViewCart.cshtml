@@ -109,10 +109,9 @@
 
     <!-- Nút hành động -->
     <div class="text-end mt-3 mb-5">
-        <form asp-action="ConfirmOrder" method="post" style="display: inline-block;">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn-primary">Xác nhận đặt hàng</button>
-        </form>
+        <a asp-controller="Orders" asp-action="Create" class="btn btn-primary">
+            Đặt hàng
+        </a>
         <a asp-action="Index" asp-controller="Products" class="btn btn-secondary ms-2">Tiếp tục mua sắm</a>
     </div>
 }

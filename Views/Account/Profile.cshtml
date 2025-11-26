@@ -1,0 +1,62 @@
+﻿@model WebBanSach.Models.AppUser
+@{
+    ViewData["Title"] = "Thông tin tài khoản";
+}
+
+<div class="container-fluid px-4 py-4">
+
+    <div class="row g-4">
+        <div class="col">
+            <div class="card shadow-sm">
+
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Thông tin tài khoản</h5>
+                </div>
+
+                <div class="card-body">
+
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Họ và tên</th>
+                            <td>@Model.FullName</td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td>@Model.Email</td>
+                        </tr>
+                        <tr>
+                            <th>Số điện thoại</th>
+                            <td>@Model.PhoneNumber</td>
+                        </tr>
+                        <tr>
+                            <th>Địa chỉ</th>
+                            <td>@Model.Address</td>
+                        </tr>
+                        <tr>
+                            <th>Trạng thái</th>
+                            <td>
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success fs-6">Hoạt động</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger fs-6">Bị khóa</span>
+                                }
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="d-flex m-md-2">
+
+                        <a asp-action="EditProfile" class="btn btn-warning me-3">Chỉnh sửa thông tin</a>
+                        <a asp-action="ChangePassword" class="btn btn-danger">Đổi mật khẩu</a>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,15 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using WebBanSach.Filters;
 using WebBanSach.Models;
 
 namespace WebBanSach.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [AdminAuthorize]
     public class OrdersController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -92,38 +95,86 @@ namespace WebBanSach.Areas.Admin.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
+
             var order = await _context.Orders
                 .Include(o => o.User)
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Product)
-                .FirstOrDefaultAsync(o => o.ID == id.Value);
+                        .ThenInclude(p => p.Publisher)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                        .ThenInclude(p => p.Category)
+                .FirstOrDefaultAsync(o => o.ID == id);
+
             if (order == null) return NotFound();
             return View(order);
         }
 
-        // POST: Cập nhật trạng thái (Xác nhận hoặc Hủy)
+        // POST: Admin cập nhật trạng thái (Xác nhận hoặc Hủy)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateStatus(int id, OrderStatus Status)
+        public async Task<IActionResult> UpdateStatus(int id, OrderStatus newStatus)
         {
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _context.Orders
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                .FirstOrDefaultAsync(o => o.ID == id);
+
             if (order == null) return NotFound();
 
-            // Không cho sửa nếu đã Paid hoặc đã Cancelled
+            // Chỉ khóa khi đã Paid hoặc đã Cancelled (giữ nguyên logic bạn)
             if (order.Status == OrderStatus.Paid || order.Status == OrderStatus.Cancelled)
             {
-                TempData["Error"] = "Đơn hàng đã hoàn tất hoặc đã hủy, không thể thay đổi!";
-                return RedirectToAction(nameof(Details), new { id });
+                TempData["Error"] = "Đơn hàng đã hoàn tất hoặc đã hủy, không thể thay đổi trạng thái!";
+                return RedirectToAction("Details", new { id });
             }
 
-            order.Status = Status;
-            await _context.SaveChangesAsync();
+            // TRƯỜNG HỢP HỦY ĐƠN (Pending hoặc Confirmed đều được)
+            if (newStatus == OrderStatus.Cancelled)
+            {
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
+                {
+                    // Cộng lại tồn kho
+                    foreach (var item in order.OrderDetails)
+                    {
+                        item.Product.Stock += item.Quantity;
+                    }
 
-            TempData["Success"] = Status == OrderStatus.Confirmed
-                ? "Đã xác nhận đơn hàng!"
-                : "Đã hủy đơn hàng!";
+                    order.Status = OrderStatus.Cancelled;
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
 
-            return RedirectToAction(nameof(Details), new { id });
+                    TempData["Success"] = $"Đã hủy đơn hàng #{order.ID} và hoàn lại tồn kho thành công!";
+                }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    TempData["Error"] = "Lỗi khi hủy đơn hàng!";
+                }
+            }
+            else if (newStatus == OrderStatus.Confirmed)
+            {
+                // Chỉ cho xác nhận khi đang Pending
+                if (order.Status != OrderStatus.Pending)
+                {
+                    TempData["Error"] = "Chỉ xác nhận được đơn hàng đang Chờ xác nhận!";
+                    return RedirectToAction("Details", new { id });
+                }
+
+                order.Status = OrderStatus.Confirmed;
+                await _context.SaveChangesAsync();
+                TempData["Success"] = $"Đã xác nhận đơn hàng #{order.ID}!";
+            }
+            else
+            {
+                // Paid hoặc trạng thái khác
+                order.Status = newStatus;
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Cập nhật trạng thái thành công!";
+            }
+
+            return RedirectToAction("Details", new { id });
         }
 
         private bool OrderExists(int id)
