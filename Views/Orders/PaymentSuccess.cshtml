@@ -1,0 +1,60 @@
+﻿@model WebBanSach.Models.Order
+@{
+    ViewData["Title"] = "Thanh toán thành công";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="text-center mb-5">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+                <h1 class="mt-3 text-success">Thanh toán thành công!</h1>
+                <p class="lead">Cảm ơn bạn đã mua hàng tại cửa hàng sách của chúng tôi</p>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Thông tin đơn hàng #@Model.ID</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Ngày thanh toán:</strong> @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p><strong>Phương thức:</strong> Thanh toán khi nhận hàng (COD)</p>
+                    <p>
+                        <strong>Tổng tiền:</strong>
+                        <span class="text-danger fs-4 fw-bold">
+                            @Model.OrderDetails.Sum(x => x.UnitPrice * x.Quantity).ToString("n0") ₫
+                        </span>
+                    </p>
+
+                    <hr />
+
+                    <h6>Sản phẩm đã mua:</h6>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var item in Model.OrderDetails)
+                        {
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>@item.Product.Name × @item.Quantity</span>
+                                <span>@((item.UnitPrice * item.Quantity).ToString("n0")) ₫</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <div class="card-footer text-center">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-primary me-2">
+                        Về trang chủ
+                    </a>
+                    <a asp-controller="Orders" asp-action="Index" class="btn btn-outline-secondary">
+                        Xem đơn hàng của tôi
+                    </a>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <small class="text-muted">
+                    Chúng tôi sẽ giao hàng trong vòng 2-5 ngày tới.
+                    Mọi thắc mắc vui lòng liên hệ hotline: <strong>1900 1234</strong>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>

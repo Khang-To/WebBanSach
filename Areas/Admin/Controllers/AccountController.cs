@@ -28,7 +28,7 @@ namespace WebBanSach.Areas.Admin.Controllers
         public IActionResult Login(string username, string password)
         {
             var user = _context.AppUsers.FirstOrDefault(u =>
-            u.UserName == username && u.IsActive);
+                u.UserName == username && u.IsActive);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
             {
@@ -36,48 +36,37 @@ namespace WebBanSach.Areas.Admin.Controllers
                 return View();
             }
 
-
-            // Lưu session
-            HttpContext.Session.SetInt32("UserId", user.ID);
-            HttpContext.Session.SetString("UserName", user.UserName);
-            HttpContext.Session.SetString("UserType", user.UserType.ToString());
-            HttpContext.Session.SetString("AdminName", user.FullName ?? "Admin");
-
-            // Điều hướng
-            if (user.UserType == UserType.Admin)
+            if (user.UserType != UserType.Admin)
             {
-                return RedirectToAction("Index", "Home", new { area = "Admin" });
+                ViewBag.Error = "Bạn không có quyền truy cập khu vực Admin.";
+                return View();
             }
 
-            return RedirectToAction("Index", "Home");
+            // DÙNG KEY RIÊNG CHO ADMIN – KHÔNG DÍNH VỚI KHÁCH
+            HttpContext.Session.SetInt32("Admin_UserId", user.ID);
+            HttpContext.Session.SetString("Admin_UserType", "Admin");
+            HttpContext.Session.SetString("Admin_Name", user.FullName ?? "Admin");
+
+            return RedirectToAction("Index", "Home", new { area = "Admin" });
         }
 
-        // Đăng xuất
         public IActionResult Logout()
         {
-            HttpContext.Session.Clear();
+            // XÓA CHỈ SESSION CỦA ADMIN
+            HttpContext.Session.Remove("Admin_UserId");
+            HttpContext.Session.Remove("Admin_UserType");
+            HttpContext.Session.Remove("Admin_Name");
             return RedirectToAction("Login");
         }
 
-        [AdminAuthorize]// filter bạn đã tạo
+        // Các action khác (Profile, EditProfile, ChangePassword) giữ nguyên
+        // Chỉ cần sửa chỗ lấy Session: dùng "Admin_UserId" thay vì "UserId"
+        [AdminAuthorize]
         public IActionResult Profile()
         {
-            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var userId = HttpContext.Session.GetInt32("Admin_UserId")!.Value;
             var admin = _context.AppUsers.Find(userId);
-
-            if (admin == null) return NotFound();
-
-            return View(admin);
-        }
-
-        // GET: Sửa thông tin
-        [AdminAuthorize]
-        public IActionResult EditProfile()
-        {
-            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
-            var admin = _context.AppUsers.Find(userId);
-
-            return View(admin);
+            return admin == null ? NotFound() : View(admin);
         }
 
         // POST: Sửa thông tin

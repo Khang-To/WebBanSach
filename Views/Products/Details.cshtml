@@ -170,37 +170,58 @@
     <!-- ================== ROW 3 – SÁCH LIÊN QUAN ================== -->
     <div class="container position-relative mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold text-dark section-header border-success">SÁCH CÙNG THỂ LOẠI</h4>
-            <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@Model.CategoryId" class="text-success fw-semibold text-decoration-none">Xem tất cả</a>
-        </div>
-        <div id="carouselRelatedBooks" class="carousel slide" data-bs-ride="carousel" data-bs-interval="6000">
-            <div class="carousel-inner p-3">
-                @{
-                    int itemsPerSlideRB = 4;
-                    int totalSlidesRB = (int)Math.Ceiling((double)related.Count() / itemsPerSlideRB);
-                }
-                @for (int i = 0; i < totalSlidesRB; i++)
+            <div class="container position-relative mt-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark section-header border-success">SÁCH CÙNG THỂ LOẠI</h4>
+                    <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@Model.CategoryId"
+                       class="text-success fw-semibold text-decoration-none">Xem tất cả</a>
+                </div>
+
+                @if (related.Any())
                 {
-                    <div class="carousel-item @(i == 0 ? "active" : "")">
-                        <div class="row justify-content-start g-3 ms-1 me-1">
-                            @foreach (var item in related.Skip(i * itemsPerSlideRB).Take(itemsPerSlideRB))
+                    <div id="carouselRelatedBooks" class="carousel slide" data-bs-ride="carousel" data-bs-interval="6000">
+                        <div class="carousel-inner p-3">
+                            @{
+                                int itemsPerSlideRB = 4;
+                                int totalSlidesRB = (int)Math.Ceiling((double)related.Count() / itemsPerSlideRB);
+                            }
+
+                            @for (int i = 0; i < totalSlidesRB; i++)
                             {
-                                <div class="col-6 col-md-3 d-flex justify-content-center">
-                                    <partial name="_ProductCard" model="item" />
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <div class="row justify-content-start g-3 ms-1 me-1">
+                                        @foreach (var item in related.Skip(i * itemsPerSlideRB).Take(itemsPerSlideRB))
+                                        {
+                                            <div class="col-6 col-md-3 d-flex justify-content-center">
+                                                <partial name="_ProductCard" model="item" />
+                                            </div>
+                                        }
+                                    </div>
                                 </div>
                             }
                         </div>
+
+                        <!-- Chỉ hiện nút khi có nhiều hơn 1 slide -->
+                        @if (totalSlidesRB > 1)
+                        {
+                            <button class="carousel-control-prev carousel-control-custom" type="button"
+                                    data-bs-target="#carouselRelatedBooks" data-bs-slide="prev">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <button class="carousel-control-next carousel-control-custom" type="button"
+                                    data-bs-target="#carouselRelatedBooks" data-bs-slide="next">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5 text-muted">
+                        <p>Chưa có sách cùng thể loại nào khác.</p>
                     </div>
                 }
             </div>
-            <button class="carousel-control-prev carousel-control-custom" type="button"
-                    data-bs-target="#carouselRelatedBooks" data-bs-slide="prev">
-                <i class="bi bi-chevron-left"></i>
-            </button>
-            <button class="carousel-control-next carousel-control-custom" type="button"
-                    data-bs-target="#carouselRelatedBooks" data-bs-slide="next">
-                <i class="bi bi-chevron-right"></i>
-            </button>
         </div>
     </div>
 </div>

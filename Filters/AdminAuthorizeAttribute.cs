@@ -10,27 +10,19 @@ namespace WebBanSach.Filters
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            // Lấy giá trị session UserType (lưu "Admin" khi đăng nhập)
-            var userType = context.HttpContext.Session.GetString("UserType");
+            // ĐỌC KEY RIÊNG CỦA ADMIN
+            var userType = context.HttpContext.Session.GetString("Admin_UserType");
 
-            // Nếu chưa đăng nhập hoặc không phải Admin
             if (string.IsNullOrEmpty(userType) || userType != "Admin")
             {
-                // Nếu request là AJAX (fetch/xhr) trả về 401 JSON, tránh redirect html
-                if (context.HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest"
-                    || context.HttpContext.Request.Headers["Accept"].ToString().Contains("application/json"))
+                if (context.HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
-                    context.Result = new JsonResult(new { message = "Unauthorized" })
-                    {
-                        StatusCode = StatusCodes.Status401Unauthorized
-                    };
+                    context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = 401 };
                 }
                 else
                 {
-                    // Chuyển hướng về trang Login
-                    context.Result = new RedirectToActionResult(LoginAction, LoginController, new { area = "Admin" });
+                    context.Result = new RedirectToActionResult("Login", "Account", new { area = "Admin" });
                 }
-
                 return;
             }
 

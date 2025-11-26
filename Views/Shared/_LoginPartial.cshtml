@@ -4,7 +4,7 @@
 @inject WebBanSach.Models.ApplicationDbContext _context
 
 @{
-    int? userId = HttpContextAccessor.HttpContext.Session.GetInt32("UserId");
+    int? userId = HttpContextAccessor.HttpContext.Session.GetInt32("Customer_UserId");
 
     AppUser user = null;
     int pendingPayments = 0;
@@ -71,14 +71,8 @@ else
             </li>
 
             <li>
-                <a asp-controller="Cart" asp-action="ViewCart" class="dropdown-item">
-                    <i class="bi bi-cart3"></i> Giỏ hàng <span class="badge bg-danger text-white ms-1 rounded-pill">@cartCount</span>
-                 </a>
-            </li>
-
-            <li>
                 <a class="dropdown-item d-flex justify-content-between align-items-center"
-                   asp-controller="Payment" asp-action="Index">
+                   asp-controller="Orders" asp-action="Index" asp-route-mode="payment">
                     <span>
                         <i class="bi bi-credit-card"></i> Thanh toán
                     </span>
@@ -93,8 +87,14 @@ else
             </li>
 
             <li>
-                <a class="dropdown-item" asp-controller="Account" asp-action="MyOrders">
-                    <i class="bi bi-receipt-cutoff"></i> Tra cứu đơn hàng
+                <a class="dropdown-item" asp-controller="Orders" asp-action="Index">
+                    <i class="bi bi-receipt-cutoff"></i> Đơn hàng của tôi
+                </a>
+            </li>
+
+            <li>
+                <a asp-controller="Cart" asp-action="ViewCart" class="dropdown-item">
+                    <i class="bi bi-cart3"></i> Giỏ hàng <span class="badge bg-danger text-white ms-1 rounded-pill">@cartCount</span>
                 </a>
             </li>
 

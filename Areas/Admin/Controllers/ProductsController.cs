@@ -5,12 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using WebBanSach.Filters;
 using WebBanSach.Models;
 
 namespace WebBanSach.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    //[AdminAuthorize]
+    [AdminAuthorize]
     public class ProductsController : Controller
     {
         private readonly ApplicationDbContext _context;

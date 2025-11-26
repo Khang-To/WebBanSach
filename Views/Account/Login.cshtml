@@ -19,6 +19,13 @@
                     </div>
                 }
 
+                @if (ViewData.ModelState.ContainsKey("") && ViewData.ModelState[""].Errors.Any(e => e.ErrorMessage.Contains("khóa")))
+                {
+                    <div class="alert alert-danger">
+                        <strong>Lưu ý:</strong> @ViewData.ModelState[""].Errors.First(e => e.ErrorMessage.Contains("khóa")).ErrorMessage
+                    </div>
+                }
+
                 <!-- Username -->
                 <div class="mb-3">
                     <label asp-for="UserName" class="form-label fw-bold">Tài khoản</label>

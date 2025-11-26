@@ -1,0 +1,22 @@
+﻿<!-- Views/Orders/Success.cshtml -->
+@model WebBanSach.Models.Order
+
+<div class="container text-center py-5">
+    <h1 class="text-success mb-4">Đặt hàng thành công!</h1>
+    <p class="lead">
+        Mã đơn hàng: <strong>#@Model.ID</strong><br>
+        Thời gian: @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")
+    </p>
+    <div class="alert alert-info">
+        Đơn hàng đang <strong>Chờ xử lý</strong>. Chúng tôi sẽ liên hệ sớm!
+    </div>
+
+    <div class="mt-5">
+        <a asp-controller="Products" asp-action="Index" class="btn btn-primary btn-lg me-3">
+            Mua hàng tiếp
+        </a>
+        <a asp-controller="Orders" asp-action="Index" class="btn btn-outline-success btn-lg">
+            Xem đơn hàng của tôi
+        </a>
+    </div>
+</div>
