@@ -93,7 +93,7 @@
                             <label class="form-label fw-bold">Ảnh bìa sách</label>
 
                             <div class="text-center mb-3">
-                                <img id="previewImg" src="/images/products/@Model.ImageUrl" alt="Preview" class="img-fluid rounded shadow-sm" style="max-height: 320px; object-fit: cover; width: 100%;" />
+                                <img id="previewImg" src="/images/products/@Model.ImageUrl" alt="Preview" class="img-fluid rounded shadow-sm" style="max-height: 320px; object-fit: contain; width: 100%;" />
                             </div>
 
                             <input type="file" name="imageFile" class="form-control" accept="image/*" onchange="previewImage(event)" />
