@@ -203,6 +203,7 @@ namespace WebBanSach.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int?>("PublishYear")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<int>("PublisherId")
@@ -212,6 +213,7 @@ namespace WebBanSach.Migrations
                         .HasColumnType("int");
 
                     b.Property<int?>("TotalPage")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.HasKey("ID");

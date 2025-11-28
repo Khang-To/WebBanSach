@@ -103,7 +103,7 @@ namespace WebBanSach.Controllers
                 return RedirectToAction(nameof(ViewCart));
             }
 
-            var userId = HttpContext.Session.GetInt32("UserId");
+            var userId = HttpContext.Session.GetInt32("Customer_UserId");
 
             if (userId.HasValue)
             {
