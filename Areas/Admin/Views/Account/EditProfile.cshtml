@@ -14,15 +14,6 @@
                 </div>
                 <div class="card-body">
 
-                    <!-- Thông báo thành công -->
-                    @if (TempData["Success"] != null)
-                    {
-                        <div class="alert alert-success alert-dismissible fade show">
-                            @TempData["Success"]
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    }
-
                     <!-- Form chỉnh sửa -->
                     <form asp-action="EditProfile" method="post">
                         @Html.AntiForgeryToken()
