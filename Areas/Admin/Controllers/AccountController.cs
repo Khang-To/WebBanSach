@@ -69,6 +69,21 @@ namespace WebBanSach.Areas.Admin.Controllers
             return admin == null ? NotFound() : View(admin);
         }
 
+        // GET: Hiển thị form chỉnh sửa thông tin
+        [AdminAuthorize]
+        public IActionResult EditProfile()
+        {
+            var userId = HttpContext.Session.GetInt32("Admin_UserId");
+            if (!userId.HasValue)
+                return RedirectToAction("Login");
+
+            var admin = _context.AppUsers.Find(userId.Value);
+            if (admin == null)
+                return NotFound();
+
+            return View(admin); // truyền model vào form để bind
+        }
+
         // POST: Sửa thông tin
         [AdminAuthorize]
         [HttpPost]
@@ -78,7 +93,7 @@ namespace WebBanSach.Areas.Admin.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var userId = HttpContext.Session.GetInt32("Admin_UserId")!.Value;
             var admin = _context.AppUsers.Find(userId);
 
             if (admin == null) return NotFound();
@@ -93,7 +108,9 @@ namespace WebBanSach.Areas.Admin.Controllers
             {
                 _context.Update(admin);
                 _context.SaveChanges();
-                TempData["Success"] = "Cập nhật thông tin thành công!";
+
+                HttpContext.Session.SetString("Admin_Name", admin.FullName ?? "Admin");
+
                 return RedirectToAction(nameof(Profile));
             }
             catch
@@ -134,7 +151,7 @@ namespace WebBanSach.Areas.Admin.Controllers
                 return View();
             }
 
-            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var userId = HttpContext.Session.GetInt32("Admin_UserId")!.Value;
             var admin = _context.AppUsers.Find(userId);
 
             if (admin == null) return NotFound();
